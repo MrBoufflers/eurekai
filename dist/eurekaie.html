@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eurekaïe !</title>
+<script>try{var t=localStorage.getItem("eurekaie-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>/* Eurekaïe ! — interface (thèmes clair / sombre) */
+:root {
+  --fond: #f4f1ea; --surface: #ffffff; --surface2: #ece7dc; --texte: #1d1b18; --doux: #6b6458; --bord: #d6cfbf;
+  --accent: #b8862b; --accent-texte: #ffffff; --danger: #c0392b; --ok: #2f855a;
+  --bio: #044F8B; --phys: #913089; --eco: #009882; --chim: #E83643;
+  --ombre: 0 1px 3px rgba(0,0,0,.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #15171c; --surface: #1f232b; --surface2: #282d37; --texte: #ece8df; --doux: #a29a8c; --bord: #383e4a;
+    --accent: #d9a441; --accent-texte: #15171c; --ombre: 0 1px 3px rgba(0,0,0,.5);
+    --bio: #2f7fc4; --phys: #b558ad; --eco: #19b39b; --chim: #f05763;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #15171c; --surface: #1f232b; --surface2: #282d37; --texte: #ece8df; --doux: #a29a8c; --bord: #383e4a;
+  --accent: #d9a441; --accent-texte: #15171c; --ombre: 0 1px 3px rgba(0,0,0,.5);
+  --bio: #2f7fc4; --phys: #b558ad; --eco: #19b39b; --chim: #f05763;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--fond); color: var(--texte); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
+button { font: inherit; cursor: pointer; border: 1px solid var(--bord); background: var(--surface2); color: var(--texte); border-radius: 8px; padding: 6px 12px; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.prim { background: var(--accent); color: var(--accent-texte); border-color: var(--accent); font-weight: 600; }
+button.petit { padding: 2px 8px; font-size: 13px; }
+input, select { font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--bord); background: var(--surface); color: var(--texte); }
+h1, h2, h3 { margin: 0 0 8px; line-height: 1.2; }
+h2 { font-size: 17px; } h3 { font-size: 15px; }
+.doux { color: var(--doux); }
+.app { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; }
+
+/* en-tête */
+.entete { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.entete .titre { font-weight: 800; font-size: 20px; letter-spacing: .5px; }
+.entete .infos { flex: 1; color: var(--doux); }
+.entete .outils { display: flex; gap: 6px; }
+
+.grille { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; align-items: start; }
+@media (max-width: 980px) { .grille { grid-template-columns: minmax(0, 1fr); } }
+.bloc { background: var(--surface); border: 1px solid var(--bord); border-radius: 12px; padding: 12px; box-shadow: var(--ombre); margin-bottom: 14px; }
+
+/* domaines */
+.d-bio { --d: var(--bio); } .d-phys { --d: var(--phys); } .d-eco { --d: var(--eco); } .d-chim { --d: var(--chim); }
+.pastille { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--d); color: #fff; font-size: 12px; font-weight: 700; }
+.hier { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.hier .rang { display: inline-flex; gap: 6px; align-items: center; background: var(--d); color: #fff; border-radius: 8px; padding: 4px 10px; font-weight: 600; }
+.hier .rang small { opacity: .8; font-weight: 400; }
+
+/* pistes */
+.piste { display: grid; grid-template-columns: 96px repeat(8, minmax(0, 1fr)); gap: 3px; margin-bottom: 4px; align-items: stretch; }
+.piste .nom { background: var(--d); color: #fff; border-radius: 6px; padding: 4px 8px; font-weight: 700; font-size: 13px; display: flex; align-items: center; }
+.case { position: relative; min-height: 46px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--bord); padding: 2px; display: flex; flex-wrap: wrap; gap: 2px; align-content: flex-start; }
+.case .num { position: absolute; right: 4px; bottom: 1px; font-size: 11px; color: var(--doux); }
+.case.palier { border-color: var(--d); border-width: 2px; }
+.case.sept { background: color-mix(in srgb, var(--d) 22%, var(--surface2)); }
+.jeton-palier { width: 100%; font-size: 10px; line-height: 1.1; color: var(--doux); }
+.jeton-palier.pris { text-decoration: line-through; }
+.pion { width: 18px; height: 18px; border-radius: 50%; background: var(--pj); color: #111; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,.35); }
+
+/* cartes */
+.cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.carte { border: 2px solid var(--d); border-radius: 10px; background: var(--surface); overflow: hidden; display: flex; flex-direction: column; font-size: 13px; text-align: left; padding: 0; color: var(--texte); }
+.carte .haut { background: var(--d); color: #fff; padding: 4px 8px; display: flex; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+.carte.C .haut { background: var(--surface); color: var(--d); border-bottom: 2px dashed var(--d); }
+.carte .nomc { font-weight: 700; padding: 6px 8px 2px; }
+.carte .effet { padding: 0 8px 6px; flex: 1; color: var(--texte); }
+.carte .bas { display: flex; gap: 4px; padding: 4px 8px 6px; align-items: center; flex-wrap: wrap; }
+.carte .bas .niv { margin-left: auto; color: var(--d); }
+button.carte:hover:not(:disabled) { outline: 2px solid var(--accent); }
+.carte.choisie { outline: 3px solid var(--accent); }
+.carte.verrou { opacity: .45; }
+.carte.vide { border-style: dashed; border-color: var(--bord); color: var(--doux); padding: 10px; }
+.sous { font-size: 12px; color: var(--doux); padding: 0 2px 2px; }
+
+/* action */
+.action { border: 2px solid var(--accent); }
+.action .consigne { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.rangee { margin-bottom: 10px; }
+.toast { background: var(--danger); color: #fff; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; }
+
+/* joueurs */
+.joueur { border-left: 6px solid var(--pj); }
+.joueur .ligne { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.joueur .nomj { font-weight: 700; font-size: 16px; }
+.joueur.actif { box-shadow: 0 0 0 2px var(--accent); }
+.mini { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.mini span { font-size: 11px; border: 1px solid var(--d); border-radius: 6px; padding: 1px 6px; }
+.mini span.C { border-style: dashed; }
+.mini span.lock { opacity: .5; }
+.obj { background: var(--surface2); border-radius: 8px; padding: 6px 8px; margin: 4px 0; font-size: 13px; }
+.obj b { color: var(--accent); }
+.jetons { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.jetons span { font-size: 11px; background: var(--surface2); border-radius: 6px; padding: 2px 6px; }
+.jetons span.use { text-decoration: line-through; opacity: .6; }
+
+.journal { max-height: 320px; overflow-y: auto; font-size: 13px; }
+.journal div { padding: 2px 0; border-bottom: 1px solid var(--bord); }
+
+/* écrans pleins */
+.ecran { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+.ecran .boite { background: var(--surface); border: 1px solid var(--bord); border-radius: 16px; padding: 24px; max-width: 520px; width: 100%; box-shadow: var(--ombre); text-align: center; }
+.ecran .boite h1 { font-size: 28px; }
+.noms { display: grid; gap: 6px; margin: 12px 0; }
+.voile { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+@media (max-width: 560px) {
+  .piste { grid-template-columns: 58px repeat(8, minmax(0, 1fr)); gap: 2px; }
+  .piste .nom { font-size: 11px; padding: 2px 4px; }
+  .case { min-height: 40px; padding: 1px; }
+  .jeton-palier { font-size: 8px; overflow: hidden; max-height: 18px; }
+  .pion { width: 14px; height: 14px; font-size: 9px; }
+  .entete .infos { flex-basis: 100%; order: 3; }
+}
+
+.pastille-ia { font-size: 11px; font-weight: 700; background: var(--accent); color: var(--accent-texte); border-radius: 6px; padding: 1px 6px; }
+.ligne-nom { display: flex; gap: 6px; }
+.ligne-nom input { flex: 1; min-width: 0; }
+
+/* domaine censuré : bandeau, cases hachurées ; frise des censures */
+.piste .nom { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; }
+.piste .nom small { font-weight: 400; font-size: 10px; opacity: .9; }
+.bandeau { background: #111; color: #fff; font-size: 10px; letter-spacing: .6px; text-transform: uppercase; padding: 0 5px; border-radius: 4px; }
+.piste.censuree .case { background-image: repeating-linear-gradient(-45deg, transparent 0 6px, color-mix(in srgb, var(--d) 30%, transparent) 6px 9px); border-color: var(--d); }
+.piste.censuree .nom { box-shadow: 0 0 0 3px var(--texte); }
+.piste.censuree.passee .case { background-image: repeating-linear-gradient(-45deg, transparent 0 8px, color-mix(in srgb, var(--d) 14%, transparent) 8px 10px); }
+.piste.censuree.passee .nom { box-shadow: none; }
+.frise { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: -4px 0 10px; font-size: 12px; }
+.frise span[class^="d-"] { border: 1px solid var(--d); color: var(--texte); border-left: 6px solid var(--d); border-radius: 6px; padding: 1px 6px; }
+
+/* statistiques */
+.tableau { overflow-x: auto; }
+.tableau table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.tableau th, .tableau td { border-bottom: 1px solid var(--bord); padding: 5px 8px; text-align: left; vertical-align: top; }
+.tableau tr[data-a] { cursor: pointer; }
+.tableau tr.sel td { background: var(--surface2); }
+.tableau td.main { min-width: 260px; font-size: 12px; }
+.partie { border-bottom: 1px solid var(--bord); padding: 8px 0; }
+.partie .ligne { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.partie .detail { margin-top: 8px; }
+.plan { width: 100%; max-width: 620px; height: auto; display: block; margin-bottom: 8px; border-radius: 6px; }
+</style></head>
+<body><div id="app"></div><script>// Données des cartes d'Eurekaïe ! — source : « cartes_data (1).json » (kurzgui, Drive, 19/02/2026), version 2.0.
+// Modifié par Oni : Lobby Vert 3 Veilles au lieu de 2 (07/11/2026).
+// Ne pas modifier un effet ou un coût sans validation d'Oni.
+// Domaines : bio, phys, eco, chim. Type : "R" (Recherche) ou "C" (Censure).
+const CARTES = (() => {
+  const DOMAINES = ["bio", "phys", "eco", "chim"];
+  const NOM_DOMAINE = { bio: "Biologie", phys: "Physique", eco: "Écologie", chim: "Chimie" };
+  const COULEUR = { bio: "#044F8B", phys: "#913089", eco: "#009882", chim: "#E83643" }; // couleurs du générateur de cartes
+  const MAX_PISTE = 7;
+
+  // [id, type, niveau, nom, effet, coût, joueurs min]
+  const P = [
+    ["BIO-1-1", "R", 1, "Sérum Lumineux", "+1 Veille", { bio: 1 }, 2],
+    ["BIO-1-2", "C", 1, "Spore Parasite", "Voler un jeton Veille à un autre joueur (non censuré ce tour)", { bio: 1 }, 2],
+    ["BIO-1-3", "R", 1, "Clone Express", "+1 XP si au moins 1 autre joueur recherche aussi Bio ce tour.", { bio: 2 }, 3],
+    ["BIO-1-4", "R", 1, "Vaccin Adaptatif", "Dépensez 1 Veille : +1 XP Bio.", { bio: 1, chim: 1 }, 4],
+    ["BIO-1-5", "C", 1, "Mutation Cachée", "Votre vote censure compte double.", { bio: 2 }, 5],
+    ["BIO-2-1", "R", 2, "Hélice Parfaite", "+ 1 XP sur une piste au choix.", { bio: 3, chim: 1 }, 2],
+    ["BIO-2-2", "C", 2, "Pandémie Ciblée", "Choisissez un joueur : il perd 1 XP dans le domaine censuré.", { bio: 3 }, 2],
+    ["BIO-2-3", "R", 2, "Symbiose", "+2 XP Bio, puis perdez 1 XP dans un autre domaine de votre choix.", { bio: 3, eco: 2 }, 3],
+    // Censures ajoutées le 08/11/2026 (Oni) pour se rapprocher de 50 % Recherche / 50 % Censure
+    ["BIO-1-6", "C", 1, "Contagion", "Chaque joueur censuré ce tour reçoit 1 Veille de moins.", { bio: 1 }, 3],
+    ["BIO-2-6", "C", 2, "Inoculation forcée", "Chaque autre joueur perd 1 XP dans sa piste la plus haute (hors 7).", { bio: 3, eco: 1 }, 3],
+    ["BIO-3-4", "C", 3, "Expropriation", "Volez à un adversaire un jeton de palier non utilisé (Gemme d'or et Conversion améliorée comprises).", { bio: 5, chim: 2 }, 4],
+    ["BIO-2-5", "R", 2, "Mimétisme", "Échangez un de vos objectifs avec celui d'un adversaire.", { bio: 3, phys: 1 }, 2], // ajoutée 08/11/2026 (À VALIDER : nom, coût)
+    ["BIO-2-4", "C", 2, "Virus de Données", "Les joueurs avec une Recherche verrouillée dans le domaine censuré perdent 1 XP.", { bio: 3, phys: 1 }, 4],
+    ["BIO-3-1", "R", 3, "Arbre-Monde", "+1 XP dans chaque domaine où vous avez au moins 3XP.", { bio: 5, eco: 2 }, 2],
+    ["BIO-3-2", "R", 3, "Panacée", "Inverser 2 pions XP d'un joueur ciblé", { bio: 5, chim: 3 }, 2],
+    ["BIO-3-3", "C", 3, "Contrôle Génétique", "A la fin du tour, échanger la possession de cette carte avec une autre sur le plateau. Vous devez remplacer cette carte avec celle du même type.", { bio: 5, phys: 2 }, 4],
+
+    ["PHYS-1-1", "R", 1, "Accélérateur", "+1 XP si vous êtes seul à rechercher Physique ce tour.", { phys: 1 }, 2],
+    ["PHYS-1-2", "C", 1, "Onde de Choc", "Choisissez un joueur : il perd 1 Veille.", { phys: 1 }, 2],
+    ["PHYS-1-3", "R", 1, "Prisme Quantique", "+1 XP si votre carte Censure a été activée ce tour.", { bio: 1, phys: 1 }, 3],
+    ["PHYS-1-4", "R", 1, "Téléporteur", "Ne s'active QUE si cette recherche a été censurée : Gagnez +1 XP dans chaque domaine.", { phys: 2, eco: 1 }, 4],
+    ["PHYS-1-5", "C", 1, "Interférence", "Pour le prochain tour : vous pouvez choisir votre carte censure une fois après la révélation des autres censures.", { phys: 2 }, 5],
+    ["PHYS-2-1", "R", 2, "Fusion Froide", "+2 XP Physique, puis perdez 1 XP dans un autre domaine de votre choix.", { phys: 3, chim: 1 }, 2],
+    ["PHYS-2-2", "C", 2, "Trou Noir", "Prochain tour : Personne ne peut choisir de carte censure Physique", { phys: 3 }, 2],
+    ["PHYS-2-3", "R", 2, "Supraconducteur", "Au prochain tour : si vous êtes censuré, appliquez quand même l'effet de votre carte Recherche", { phys: 3, eco: 2 }, 3],
+    ["PHYS-1-6", "C", 1, "Interception", "Regardez la prochaine carte Progrès d'une pile et placez-la sous la pile.", { phys: 1 }, 3],
+    ["PHYS-1-7", "C", 1, "Inversion des pôles", "Échangez votre gemme avec celle d'un joueur de votre choix.", { phys: 2 }, 2],
+    ["PHYS-2-5", "R", 2, "Prémonition", "Regardez les 3 objectifs du dessus de la pioche et remettez-les dans l'ordre de votre choix.", { phys: 3, bio: 1 }, 2], // ajoutée 08/11/2026 (À VALIDER)
+    ["PHYS-2-4", "C", 2, "Antimatière", "Inversez la hiérarchie complète.", { bio: 1, phys: 3 }, 4],
+    ["PHYS-3-1", "R", 3, "Machine Temporelle", "Jouez une deuxième carte Recherche pendant ce tour (elle sera également verrouillée au prochain tour)", { bio: 2, phys: 5 }, 2],
+    ["PHYS-3-2", "R", 3, "Dimension Parallèle", "Copiez l'effet Recherche d'un autre joueur ce tour.", { phys: 5, eco: 3 }, 2],
+    ["PHYS-3-3", "C", 3, "Singularité", "Censurer les 2 domaines les plus votés.", { phys: 5, chim: 2 }, 4],
+
+    ["ECO-1-1", "R", 1, "Jardin Vertical", "+1 Veille", { eco: 1 }, 2],
+    ["ECO-1-2", "C", 1, "Moratoire", "Choisissez un domaine : sa carte Progrès visible est défaussée.", { eco: 1 }, 2],
+    ["ECO-1-3", "R", 1, "Photovoltaïque", "+1 XP bonus si au moins 1 autre joueur recherche aussi Écologie ce tour.", { eco: 1, phys: 1 }, 3],
+    ["ECO-1-4", "R", 1, "Recycleur", "Dépensez 1 Veille : +1 XP Éco.", { eco: 2, chim: 1 }, 4],
+    ["ECO-1-5", "C", 1, "Lobby Vert", "Les joueurs censurés reçoivent 3 Veille au lieu de 2.\nProchain tour : choisissez votre carte censure à la fin de la phase censure", { eco: 2 }, 5],
+    ["ECO-2-1", "R", 2, "Écosystème Clos", "+1 XP dans un domaine.", { phys: 1, eco: 3 }, 2],
+    ["ECO-2-2", "C", 2, "Tempête Solaire", "+2 Veille", { eco: 3 }, 2],
+    ["ECO-2-3", "R", 2, "Permaculture", "Tour suivant : si vous êtes censuré, vous gagnez 3 Veille.", { bio: 2, eco: 3 }, 3],
+    ["ECO-2-6", "C", 2, "Gel des fonds", "La carte Progrès visible du domaine censuré ne peut pas être acquise ce tour.", { eco: 3, bio: 1 }, 3],
+    ["ECO-2-5", "C", 2, "Compost", "Regardez l'objectif du dessus de la pioche ; vous pouvez le mettre sous la pioche.", { eco: 3, chim: 1 }, 2], // ajoutée 08/11/2026 (À VALIDER)
+    ["ECO-2-4", "C", 2, "Déforestation", "Les joueurs avec une Recherche verrouillée dans le domaine censuré perdent 1 XP.", { eco: 3, chim: 2 }, 4],
+    ["ECO-3-1", "R", 3, "Terra Genesis", "Gagnez 1 XP dans chaque domaine où au moins 1 autre joueur a recherché.", { bio: 2, eco: 5 }, 2],
+    ["ECO-3-2", "R", 3, "Extinction de Masse", "Ne s'active QUE si cette recherche a été censuré : Vous gagnez immédiatement la partie", { phys: 3, eco: 5 }, 2],
+    ["ECO-3-3", "C", 3, "Symbiocité", "Récupérer les jetons Veille de tous les joueurs (vous y compris) et redistribuez les équitablement en commençant par vous.", { eco: 5, chim: 2 }, 4],
+
+    ["CHIM-1-1", "R", 1, "Catalyseur", "+1 XP si votre carte Censure a été activée ce tour.", { chim: 1 }, 2],
+    ["CHIM-1-2", "C", 1, "Acide Corrosif", "+1 Veille", { chim: 1 }, 2],
+    ["CHIM-1-3", "R", 1, "Cristallisation", "+1 XP si vous êtes seul à rechercher Chimie ce tour.", { bio: 2, chim: 1 }, 3],
+    ["CHIM-1-4", "R", 1, "Alchimiste", "Gagnez votre XP sur la piste de votre choix au lieu de Chimie.", { phys: 1, chim: 1 }, 4],
+    ["CHIM-1-5", "C", 1, "Réaction en chaine", "Défaussez une carte Projet visible.", { chim: 2 }, 5],
+    ["CHIM-2-1", "R", 2, "Transmutation", "Déplacez 2 XP d'un domaine vers un autre", { phys: 1, chim: 3 }, 2],
+    ["CHIM-2-2", "C", 2, "Gaz Soporifique", "Un joueur de votre choix ne peut pas acquérir de carte ce tour.", { chim: 3 }, 2],
+    ["CHIM-2-3", "R", 2, "Polymère Intelligent", "Tour suivant : votre carte Recherche rapporte +1 XP.", { eco: 2, chim: 3 }, 3],
+    ["CHIM-1-6", "C", 1, "Précipité", "Choisissez un joueur : il perd 1 Veille.", { chim: 2 }, 3],
+    ["CHIM-2-5", "C", 2, "Sabotage", "Choisissez un adversaire : il défausse un de ses objectifs et en pioche un nouveau.", { chim: 3, eco: 1 }, 2], // ajoutée 08/11/2026 (À VALIDER)
+    ["CHIM-2-4", "C", 2, "Bombe Fumigène", "Choisissez un joueur : ces cartes verrouillées ne se déverrouillent pas au prochain tour.", { bio: 1, chim: 3 }, 4],
+    ["CHIM-3-1", "R", 3, "Pierre Philosophale", "Convertissez TOUTES vos Veilles en XP, 1 pour 1, répartis librement.", { bio: 2, chim: 5 }, 2],
+    ["CHIM-3-2", "R", 3, "Nanotechnologie", "Acquérez gratuitement n'importe quelles cartes Progrès visibles.", { phys: 3, chim: 5 }, 2],
+    ["CHIM-3-3", "C", 3, "Le Stimulant Divin", "Prochain tour : Jouez vos 4 cartes Recherche (sans carte Censure)", { eco: 2, chim: 5 }, 4],
+  ];
+
+  // Objectifs (Oni, 08/11/2026) : remplacent les Inventions Ultimes. Publics ; on en pioche un à chaque piste qui atteint 7.
+  // Les objectifs marqués * ne comptent qu'à partir du moment où on les pioche. (Noms : À VALIDER)
+  const OBJECTIFS = [
+    ["O-MARTYR", "Le martyr", "Soyez censuré 2 tours d'affilée.*"],
+    ["O-CENS2", "Censeur implacable", "Réussissez 2 censures d'affilée (votre Censure vise le domaine censuré).*"],
+    ["O-HAUT", "Coup d'État", "Faites censurer le domaine en haut de la hiérarchie.*"],
+    ["O-SEUL", "Voix solitaire", "Faites censurer un domaine en étant le seul à avoir voté pour lui.*"],
+    ["O-PAIRE", "Équilibre", "Vos 3 autres pistes (hors une piste à 7) sont exactement au même niveau (au moins 1)."], // Oni, 08/11/2026
+    ["O-VEILLE6", "Vigie", "Ayez 6 Veilles."],
+    ["O-VOL4", "Pillard", "Volez ou faites perdre au moins 4 Veilles à vos adversaires.*"],
+    ["O-SANSBASE", "Avant-garde", "N'ayez plus aucune carte de base."],
+    ["O-NIV3", "Élite", "Possédez 2 cartes de niveau 3."],
+    ["O-SEPTHAUT", "Consécration", "Un de vos domaines à 7 est en haut de la hiérarchie."],
+    ["O-XP2", "Rivalité", "Faites perdre de l'XP à 2 joueurs différents.*"],
+    ["O-QUATRE", "Polymathe", "Ayez au moins 4 sur chaque piste."],
+    ["O-SABOTEUR", "Le saboteur", "Faites défausser l'objectif d'un adversaire.*"],
+  ];
+  // Jetons de palier (Oni, 08/11/2026) : le premier joueur qui atteint 3 ou 5 sur une piste prend le jeton.
+  const JETONS = {
+    "bio-3": { k: "veille2", nom: "+2 Veilles", texte: "Gagnez 2 Veilles immédiatement." },
+    "bio-5": { k: "conversion", nom: "Conversion améliorée", texte: "Pour le reste de la partie, 2 Veilles suffisent pour 1 XP." },
+    "phys-3": { k: "gemmeOr", nom: "Gemme d'or", texte: "Pour le reste de la partie, vous gagnez toutes les égalités entre joueurs." },
+    "phys-5": { k: "regard", nom: "Regard vers l'avenir", texte: "Une fois : regardez les 3 objectifs du dessus et remettez-les dans l'ordre de votre choix." },
+    "eco-3": { k: "veto", nom: "Veto", texte: "Une fois, après la révélation : annulez le vote de censure d'un adversaire." },
+    "eco-5": { k: "immunite", nom: "Immunité", texte: "Une fois, annoncé avec votre programmation : votre Recherche ne peut pas être censurée." },
+    "chim-3": { k: "vote2", nom: "Vote double", texte: "Une fois, annoncé avec votre programmation : votre Censure compte double." },
+    "chim-5": { k: "achat2", nom: "Progrès gratuit", texte: "Une fois : en plus de votre acquisition normale, acquérez une carte Progrès visible sans en avoir le coût." }, // Oni, 08/11/2026
+  };
+
+  const PAR_ID = {};
+  for (const [id, type, niveau, nom, effet, cout, min] of P) {
+    const dom = { BIO: "bio", PHYS: "phys", ECO: "eco", CHIM: "chim" }[id.split("-")[0]];
+    PAR_ID[id] = { id, type, dom, niveau, nom, effet, cout, min };
+  }
+  // cartes de départ : aucun effet
+  for (const dom of DOMAINES) for (const type of ["R", "C"]) {
+    const id = "S-" + type + "-" + dom;
+    PAR_ID[id] = { id, type, dom, niveau: 0, nom: (type === "R" ? "Recherche " : "Censure ") + NOM_DOMAINE[dom], effet: "", cout: {}, min: 2, depart: true };
+  }
+  const OBJ = {};
+  for (const [id, nom, texte] of OBJECTIFS) OBJ[id] = { id, nom, texte };
+
+  return { DOMAINES, NOM_DOMAINE, COULEUR, MAX_PISTE, PAR_ID, OBJ, JETONS, PROGRES: P.map(p => p[0]) };
+})();
+if (typeof module !== "undefined") module.exports = CARTES;
+
+// Moteur de règles d'Eurekaïe ! — aucun accès au DOM (navigateur et Node).
+// Règles : livret V3 (texte v2.0) + décisions d'Oni (docs/questions.md) ; cartes : JSON v2.0 de kurzgui (src/cartes.js).
+// Les choix d'interprétation encore à valider par Oni sont marqués « À VALIDER » et listés dans docs/questions.md.
+const EK = (() => {
+  const C = typeof module !== "undefined" ? require("./cartes.js") : CARTES;
+  const { DOMAINES, PAR_ID, OBJ, JETONS, MAX_PISTE, NOM_DOMAINE } = C;
+  const VERSION = "0.6.1";
+
+  let RNG = Math.random;
+  const setRng = f => { RNG = f; };
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(RNG() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const carte = id => PAR_ID[id];
+  const D = d => NOM_DOMAINE[d];
+
+  // ---------- mise en place ----------
+  // les 8 cartes d'origine à 1 XP (une Recherche, une Censure par domaine) ; les cartes ajoutées ensuite ne sont pas concernées
+  const TETE = ["BIO-1-1", "BIO-1-2", "PHYS-1-1", "PHYS-1-2", "ECO-1-1", "ECO-1-2", "CHIM-1-1", "CHIM-1-2"];
+  const estCarteTete = id => TETE.includes(id);
+  function newGame(opts = {}) {
+    const noms = opts.noms || ["Joueur 1", "Joueur 2", "Joueur 3"];
+    const n = noms.length;
+    if (n < 2 || n > 5) throw new Error("2 à 5 joueurs");
+    const piles = {}, visibles = {};
+    for (const dom of DOMAINES) {
+      const ids = C.PROGRES.filter(id => PAR_ID[id].dom === dom && PAR_ID[id].min <= n);
+      // Oni, 08/11/2026 : les 2 cartes qui ne coûtent que 1 XP (une Recherche, une Censure) sont toujours en tête de pile,
+      // dans un ordre tiré au hasard ; le reste de chaque niveau est mélangé en dessous
+      const tete = shuffle(ids.filter(estCarteTete));
+      const pile = [...tete];
+      for (const niv of [1, 2, 3]) pile.push(...shuffle(ids.filter(id => PAR_ID[id].niveau === niv && !tete.includes(id))));
+      visibles[dom] = pile.shift() || null; // index 0 = dessus de la pile
+      piles[dom] = pile;
+    }
+    const joueurs = noms.map(nom => {
+      const cartes = {};
+      for (const dom of DOMAINES) for (const t of ["R", "C"]) cartes[t + "-" + dom] = "S-" + t + "-" + dom;
+      return { nom, xp: { bio: 0, phys: 0, eco: 0, chim: 0 }, veille: 0, cartes, verrou: [], prog: null, gemme: 0,
+        objectifs: [], sept: {}, jetons: [] };
+    });
+    // gemmes (Oni, 07/11/2026) : numéros 1 à n tirés au hasard, départagent les joueurs qui recherchent le même domaine
+    shuffle(noms.map((_, i) => i + 1)).forEach((g, i) => { joueurs[i].gemme = g; });
+    const paliers = {};
+    for (const k of Object.keys(JETONS)) paliers[k] = null;
+    return {
+      version: VERSION, n, joueurs,
+      hier: shuffle([...DOMAINES]),            // du haut (index 0) vers le bas
+      piles, visibles, defausse: [],
+      objPile: shuffle(Object.keys(OBJ)), objDefausse: [], paliers,
+      tour: 1, phase: "prog",                  // prog → resol → acq → (tour suivant) prog ; fin
+      t: null,                                 // informations du tour en cours (votes, domaine censuré…)
+      etapes: [], attente: null, ordre: [], acq: 0,
+      gagnant: null, log: [],
+    };
+  }
+
+  // ---------- outils ----------
+  const log = (S, txt) => { S.log.push({ tour: S.tour, txt }); };
+  const nom = (S, p) => S.joueurs[p].nom;
+  const autres = (S, p) => S.joueurs.map((_, i) => i).filter(i => i !== p);
+  const rechercheurs = (S, dom) => S.joueurs.map((j, i) => (j.prog && j.prog.r === dom ? i : -1)).filter(i => i >= 0);
+  const carteJouee = (S, p, type) => { const j = S.joueurs[p]; return j.cartes[type + "-" + j.prog[type === "R" ? "r" : "c"]]; };
+  const peutPayer = (j, cout) => Object.entries(cout).every(([d, v]) => j.xp[d] >= v);
+  const disponibles = (S, p) => Object.keys(S.joueurs[p].cartes).filter(s => !S.joueurs[p].verrou.includes(s));
+  function reveler(S, dom) { S.visibles[dom] = S.piles[dom].shift() || null; }
+  const ask = (type, options, texte, passer = false) => ({ type, options, texte, passer });
+  // pour les effets à plusieurs questions : la dernière réponse va dans le champ demandé (c.attendu)
+  function lire(c) { if (c.attendu) { c[c.attendu] = c.choix[c.choix.length - 1]; c.attendu = null; } }
+
+  // ---------- jetons de palier ----------
+  const PERMANENTS = ["conversion", "gemmeOr"];
+  // un jeton s'utilise à partir du tour qui suit son obtention
+  const jetonUtilisable = (S, p, k) => S.joueurs[p].jetons.some(t => t.k === k && !t.used && S.tour > t.tour);
+  function useJeton(S, p, k) {
+    const t = S.joueurs[p].jetons.find(t => t.k === k && !t.used && S.tour > t.tour);
+    if (t && !PERMANENTS.includes(k)) t.used = true;
+  }
+  const gemmeEff = (S, p) => (jetonUtilisable(S, p, "gemmeOr") ? 99 : S.joueurs[p].gemme);
+
+  // ---------- XP, Veilles, paliers, objectifs ----------
+  // cause affichée dans le journal à la suite de chaque gain ou perte (ex. « — Spore Parasite de IA 3 »)
+  let CAUSE = "";
+  const avecCause = (c, f) => { const avant = CAUSE; CAUSE = c; try { return f(); } finally { CAUSE = avant; } };
+  const suffixe = () => (CAUSE ? ` — ${CAUSE}` : "");
+  const nomSource = id => (PAR_ID[id] ? `« ${PAR_ID[id].nom} »` : { "J-veto": "Veto", "J-regard": "Regard vers l'avenir" }[id] || id);
+  // src : joueur à l'origine d'une perte (compte pour les objectifs Pillard et Rivalité)
+  function gainXP(S, p, dom, k, src) {
+    const j = S.joueurs[p], avant = j.xp[dom];
+    let surplus = 0;
+    if (k > 0) { const monte = Math.min(k, MAX_PISTE - avant); surplus = k - monte; j.xp[dom] = avant + monte; }
+    else j.xp[dom] = Math.max(0, avant + k);
+    const d = j.xp[dom] - avant;
+    if (d) log(S, `${j.nom} : ${d > 0 ? "+" : ""}${d} XP ${D(dom)} (${j.xp[dom]})${suffixe()}`);
+    // Oni, 08/11/2026 : chaque XP gagnée sur une piste déjà à 7 rapporte 2 Veilles
+    if (surplus) avecCause(`piste ${D(dom)} déjà à 7`, () => gainVeille(S, p, 2 * surplus));
+    if (d < 0 && src !== undefined && src !== p) noteXP(S, src, p);
+    if (d > 0) apresXP(S, p, dom);
+    return d;
+  }
+  function gainVeille(S, p, k, src) {
+    const j = S.joueurs[p], avant = j.veille;
+    j.veille = Math.max(0, avant + k);
+    const d = j.veille - avant;
+    if (d) log(S, `${j.nom} : ${d > 0 ? "+" : ""}${d} Veille (${j.veille})${suffixe()}`);
+    if (d < 0 && src !== undefined && src !== p) noteVeilles(S, src, -d);
+    return d;
+  }
+  function apresXP(S, p, dom) {
+    const j = S.joueurs[p];
+    for (const v of [3, 5]) {
+      const cle = dom + "-" + v;
+      if (S.paliers[cle] === null && j.xp[dom] >= v) {
+        const J = JETONS[cle];
+        S.paliers[cle] = p;
+        j.jetons.push({ k: J.k, cle, tour: S.tour, used: J.k === "veille2" });
+        log(S, `${j.nom} atteint ${v} en ${D(dom)} le premier : jeton « ${J.nom} »`);
+        if (J.k === "veille2") avecCause("jeton de palier", () => gainVeille(S, p, 2));
+      }
+    }
+    if (j.xp[dom] >= MAX_PISTE && !j.sept[dom]) { j.sept[dom] = true; piocherObjectif(S, p, `atteint 7 en ${D(dom)}`); }
+  }
+  const nouvelObj = id => ({ id, n: 0, v: [], ok: false });
+  function piocherObjectif(S, p, pourquoi) {
+    if (!S.objPile.length) { S.objPile = shuffle(S.objDefausse); S.objDefausse = []; }
+    const id = S.objPile.shift();
+    if (!id) { log(S, "Plus aucun objectif à piocher"); return; }
+    S.joueurs[p].objectifs.push(nouvelObj(id));
+    log(S, `${nom(S, p)} ${pourquoi} et pioche l'objectif « ${OBJ[id].nom} » : ${OBJ[id].texte}`);
+  }
+  const objectifsDe = (S, p, id) => S.joueurs[p].objectifs.filter(o => o.id === id);
+  function noteVeilles(S, src, n) { for (const o of objectifsDe(S, src, "O-VOL4")) o.n += n; }
+  function noteXP(S, src, q) { for (const o of objectifsDe(S, src, "O-XP2")) if (!o.v.includes(q)) o.v.push(q); }
+
+  // Conditions des objectifs (les compteurs n / v / ok partent de 0 au moment de la pioche)
+  const OK = {
+    "O-MARTYR": (S, p, o) => o.n >= 2,
+    "O-CENS2": (S, p, o) => o.n >= 2,
+    "O-HAUT": (S, p, o) => o.ok,
+    "O-SEUL": (S, p, o) => o.ok,
+    // Oni, 08/11/2026 : les 3 autres pistes (hors une piste à 7) au même niveau ; au moins 1 (À VALIDER : sinon 7-0-0-0 suffirait)
+    "O-PAIRE": (S, p) => { const x = S.joueurs[p].xp; return DOMAINES.some(d => x[d] >= MAX_PISTE && (v => v.every(y => y === v[0]) && v[0] >= 1)(DOMAINES.filter(e => e !== d).map(e => x[e]))); },
+    "O-VEILLE6": (S, p) => S.joueurs[p].veille >= 6,
+    "O-VOL4": (S, p, o) => o.n >= 4,
+    "O-SANSBASE": (S, p) => Object.values(S.joueurs[p].cartes).every(id => !carte(id).depart),
+    "O-NIV3": (S, p) => Object.values(S.joueurs[p].cartes).filter(id => carte(id).niveau === 3).length >= 2,
+    "O-SEPTHAUT": (S, p) => S.joueurs[p].xp[S.hier[0]] >= MAX_PISTE,
+    "O-XP2": (S, p, o) => o.v.length >= 2,
+    "O-QUATRE": (S, p) => DOMAINES.every(d => S.joueurs[p].xp[d] >= 4),
+    "O-SABOTEUR": (S, p, o) => o.n >= 1,
+  };
+  // Victoire dès qu'un objectif est rempli, à n'importe quel moment (ordre de jeu si plusieurs à la fois)
+  function verifier(S) {
+    if (S.gagnant !== null) return;
+    const ordre = S.ordre.length ? S.ordre : S.joueurs.map((_, i) => i);
+    for (const p of ordre) for (const o of S.joueurs[p].objectifs) if (OK[o.id](S, p, o)) {
+      S.gagnant = p; S.phase = "fin"; S.attente = null; S.etapes = []; S.victoire = { p, objectif: o.id };
+      log(S, `${nom(S, p)} remplit l'objectif « ${OBJ[o.id].nom} » et gagne la partie !`);
+      return;
+    }
+  }
+
+  // ---------- ordre de jeu, hiérarchie, gemmes ----------
+  // Oni, 07/11/2026 : le domaine censuré passe tout en haut de la hiérarchie, à la fin du tour
+  function enHaut(S, dom) { S.hier = [dom, ...S.hier.filter(d => d !== dom)]; }
+  // ordre : rang (dans la hiérarchie) du domaine recherché ; à égalité, la plus grande gemme (la Gemme d'or gagne toujours)
+  const calcOrdre = (S, gemmes) => S.joueurs.map((_, i) => i).sort((a, b) =>
+    (S.hier.indexOf(S.joueurs[a].prog.r) - S.hier.indexOf(S.joueurs[b].prog.r)) || gemmes[b] - gemmes[a]);
+  // après une égalité, les joueurs concernés échangent leurs gemmes (inversion de l'ordre, À VALIDER à 3+) ;
+  // le porteur de la Gemme d'or ne participe pas à l'échange
+  function echangerGemmes(S) {
+    for (const d of DOMAINES) {
+      const tous = S.ordre.filter(p => S.joueurs[p].prog.r === d);
+      if (tous.length < 2) continue;
+      const g = tous.filter(p => !jetonUtilisable(S, p, "gemmeOr"));
+      const vals = g.map(p => S.joueurs[p].gemme);
+      g.forEach((p, i) => { S.joueurs[p].gemme = vals[vals.length - 1 - i]; });
+      log(S, `Égalité en ${D(d)} : ${tous.map(p => nom(S, p)).join(" puis ")}${g.length > 1 ? " (gemmes échangées)" : ""}`);
+    }
+  }
+
+  // ---------- effets des cartes Progrès et des jetons ----------
+  // quand : "censure" (Censure ayant visé le domaine censuré), "recherche" (Recherche non censurée),
+  //         "censure_r" (Recherche censurée), "base" (remplace le +1 XP de base), "jeton".
+  // run(S, ctx) renvoie une demande de choix (ask) ou rien ; ctx.choix contient les réponses déjà données.
+  const plusVeille = k => ({ quand: "recherche", run: (S, c) => { gainVeille(S, c.p, k); } });
+  const siAutres = dom => ({ quand: "recherche", run: (S, c) => { if (rechercheurs(S, dom).some(q => q !== c.p)) gainXP(S, c.p, dom, 1); } });
+  const siSeul = dom => ({ quand: "recherche", run: (S, c) => { if (!rechercheurs(S, dom).some(q => q !== c.p)) gainXP(S, c.p, dom, 1); } });
+  const siCensureActive = dom => ({ quand: "recherche", run: (S, c) => { if (S.t.actives.includes(c.p)) gainXP(S, c.p, dom, 1); } });
+  const depenseVeille = dom => ({ quand: "recherche", run: (S, c) => {
+    if (!c.choix.length) return S.joueurs[c.p].veille ? ask("ouinon", [true, false], `Dépenser 1 Veille pour +1 XP ${D(dom)} ?`) : undefined;
+    if (c.choix[0]) { gainVeille(S, c.p, -1); gainXP(S, c.p, dom, 1); }
+  } });
+  const xpAuChoix = { quand: "recherche", run: (S, c) => {
+    if (!c.choix.length) return ask("domaine", [...DOMAINES], "+1 XP sur la piste de votre choix");
+    gainXP(S, c.p, c.choix[0], 1);
+  } };
+  // « +2 XP dans le domaine, puis perdez 1 XP ailleurs » : +2 en plus du +1 de base (À VALIDER)
+  const plusDeuxMoinsUn = dom => ({ quand: "recherche", run: (S, c) => {
+    if (!c.choix.length) { gainXP(S, c.p, dom, 2); return ask("domaine", DOMAINES.filter(d => d !== dom), "Perdez 1 XP dans un autre domaine"); }
+    gainXP(S, c.p, c.choix[0], -1);
+  } });
+  const verrouilleePerd = { quand: "censure", run: (S, c) => {
+    S.joueurs.forEach((j, q) => { if (j.verrou.includes("R-" + S.t.censure)) gainXP(S, q, S.t.censure, -1, c.p); });
+  } };
+  const defausseVisible = { quand: "censure", run: (S, c) => {
+    if (!c.choix.length) { const o = DOMAINES.filter(d => S.visibles[d]); return o.length ? ask("domaine", o, "Défaussez la carte Progrès visible d'un domaine") : undefined; }
+    const d = c.choix[0]; log(S, `${nom(S, c.p)} défausse « ${carte(S.visibles[d]).nom} »`);
+    S.defausse.push(S.visibles[d]); reveler(S, d);
+  } };
+  // Regard vers l'avenir (jeton Physique 5) et Prémonition : 3 objectifs du dessus remis dans l'ordre choisi (en secret)
+  const regard = quand => ({ quand, run: (S, c) => {
+    if (!c.cartes) {
+      if (quand === "jeton") useJeton(S, c.p, "regard");
+      c.cartes = S.objPile.slice(0, 3);
+      if (c.cartes.length < 2) { log(S, `${nom(S, c.p)} regarde le dessus de la pioche d'objectifs`); return; }
+    }
+    const reste = c.cartes.filter(id => !c.choix.includes(id));
+    if (reste.length > 1) return { ...ask("objectif", reste, `Quel objectif placez-vous en position ${c.choix.length + 1} (du dessus) ?`), prive: true };
+    S.objPile.splice(0, c.cartes.length, ...c.choix, ...reste);
+    log(S, `${nom(S, c.p)} a remis les ${c.cartes.length} objectifs du dessus dans l'ordre de son choix`);
+  } });
+
+  const FX = {
+    "BIO-1-1": plusVeille(1),
+    "BIO-1-2": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) {
+        const o = autres(S, c.p).filter(q => !S.t.censures.includes(q) && S.joueurs[q].veille > 0);
+        return o.length ? ask("joueur", o, "Volez 1 Veille à un joueur non censuré ce tour") : log(S, "Spore Parasite : aucune Veille à voler");
+      }
+      gainVeille(S, c.choix[0], -1, c.p); gainVeille(S, c.p, 1);
+    } },
+    "BIO-1-3": siAutres("bio"),
+    "BIO-1-4": depenseVeille("bio"),
+    "BIO-1-5": { quand: "censure", run: () => {} }, // vote double : compté dans le décompte des votes
+    "BIO-2-1": xpAuChoix,
+    "BIO-2-2": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) return ask("joueur", autres(S, c.p), `Un joueur perd 1 XP ${D(S.t.censure)}`);
+      gainXP(S, c.choix[0], S.t.censure, -1, c.p);
+    } },
+    "BIO-2-3": plusDeuxMoinsUn("bio"),
+    "BIO-2-4": verrouilleePerd,
+    // Mimétisme : échanger un de ses objectifs avec celui d'un adversaire (facultatif ; compteurs remis à 0)
+    "BIO-2-5": { quand: "recherche", run: (S, c) => {
+      lire(c);
+      const j = S.joueurs[c.p];
+      if (c.cible === undefined) {
+        const cibles = autres(S, c.p).filter(q => S.joueurs[q].objectifs.length);
+        if (!j.objectifs.length || !cibles.length) { log(S, "Mimétisme : aucun échange d'objectif possible"); return; }
+        c.attendu = "cible"; return ask("joueur", cibles, "Échangez un objectif avec quel joueur ?", true);
+      }
+      if (c.cible === null) return;
+      const t = S.joueurs[c.cible];
+      if (c.mien === undefined) { if (j.objectifs.length === 1) c.mien = j.objectifs[0].id; else { c.attendu = "mien"; return ask("objectif", j.objectifs.map(o => o.id), "Lequel de vos objectifs donnez-vous ?"); } }
+      if (c.sien === undefined) { if (t.objectifs.length === 1) c.sien = t.objectifs[0].id; else { c.attendu = "sien"; return ask("objectif", t.objectifs.map(o => o.id), "Quel objectif prenez-vous ?"); } }
+      j.objectifs = j.objectifs.filter(o => o.id !== c.mien).concat([nouvelObj(c.sien)]);
+      t.objectifs = t.objectifs.filter(o => o.id !== c.sien).concat([nouvelObj(c.mien)]);
+      log(S, `${j.nom} échange « ${OBJ[c.mien].nom} » contre « ${OBJ[c.sien].nom} » de ${t.nom}`);
+    } },
+    "BIO-3-1": { quand: "recherche", run: (S, c) => { for (const d of DOMAINES) if (S.joueurs[c.p].xp[d] >= 3) gainXP(S, c.p, d, 1); } },
+    "BIO-3-2": { quand: "recherche", run: (S, c) => {
+      if (c.choix.length === 0) return ask("joueur", S.joueurs.map((_, i) => i), "Choisissez le joueur dont vous inversez 2 pions XP", true);
+      if (c.choix[0] === null) return;
+      if (c.choix.length === 1) return ask("domaine", [...DOMAINES], "Premier pion à inverser");
+      if (c.choix.length === 2) return ask("domaine", DOMAINES.filter(d => d !== c.choix[1]), "Second pion à inverser");
+      const q = c.choix[0], j = S.joueurs[q], [a, b] = [c.choix[1], c.choix[2]];
+      [j.xp[a], j.xp[b]] = [j.xp[b], j.xp[a]];
+      log(S, `${j.nom} : pions ${D(a)} et ${D(b)} inversés (${j.xp[a]} / ${j.xp[b]})`);
+      apresXP(S, q, a); apresXP(S, q, b);
+    } },
+
+    "PHYS-1-1": siSeul("phys"),
+    "PHYS-1-2": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) return ask("joueur", autres(S, c.p), "Un joueur perd 1 Veille");
+      gainVeille(S, c.choix[0], -1, c.p);
+    } },
+    "PHYS-1-3": siCensureActive("phys"),
+    "PHYS-1-4": { quand: "censure_r", run: (S, c) => { for (const d of DOMAINES) gainXP(S, c.p, d, 1); } },
+    "PHYS-2-1": plusDeuxMoinsUn("phys"),
+    "PHYS-2-4": { quand: "censure", run: S => { S.hier.reverse(); log(S, "Antimatière : hiérarchie inversée"); } },
+    "PHYS-2-5": regard("recherche"), // Prémonition
+
+    "ECO-1-1": plusVeille(1),
+    "ECO-1-2": defausseVisible,
+    "ECO-1-3": siAutres("eco"),
+    "ECO-1-4": depenseVeille("eco"),
+    "ECO-2-1": xpAuChoix,
+    "ECO-2-2": { quand: "censure", run: (S, c) => { gainVeille(S, c.p, 2); } },
+    "ECO-2-4": verrouilleePerd,
+    // Compost : regarder l'objectif du dessus, et éventuellement le mettre sous la pioche (en secret)
+    "ECO-2-5": { quand: "censure", run: (S, c) => {
+      const top = S.objPile[0];
+      if (!top) return;
+      if (!c.choix.length) return { ...ask("ouinon", [true, false], `Objectif du dessus : « ${OBJ[top].nom} » (${OBJ[top].texte}). Le mettre sous la pioche ?`), prive: true, objet: top };
+      if (c.choix[0]) { S.objPile.push(S.objPile.shift()); log(S, `${nom(S, c.p)} met l'objectif du dessus sous la pioche`); }
+      else log(S, `${nom(S, c.p)} regarde l'objectif du dessus et le laisse en place`);
+    } },
+    "ECO-3-1": { quand: "recherche", run: (S, c) => {
+      for (const d of DOMAINES) if (rechercheurs(S, d).some(q => q !== c.p)) gainXP(S, c.p, d, 1);
+    } },
+    "ECO-3-2": { quand: "censure_r", run: (S, c) => { S.gagnant = c.p; S.phase = "fin"; S.victoire = { p: c.p, carte: "ECO-3-2" }; log(S, `${nom(S, c.p)} gagne la partie (Extinction de Masse) !`); } },
+    "ECO-3-3": { quand: "censure", run: (S, c) => {
+      const avant = S.joueurs.map(j => j.veille);
+      let total = 0; for (const j of S.joueurs) { total += j.veille; j.veille = 0; }
+      for (let k = 0; k < total; k++) S.joueurs[(c.p + k) % S.n].veille++;
+      log(S, `Symbiocité : ${total} Veille redistribuées`);
+      S.joueurs.forEach((j, q) => { if (q !== c.p && avant[q] > j.veille) noteVeilles(S, c.p, avant[q] - j.veille); });
+    } },
+
+    "CHIM-1-1": siCensureActive("chim"),
+    "CHIM-1-2": { quand: "censure", run: (S, c) => { gainVeille(S, c.p, 1); } },
+    "CHIM-1-3": siSeul("chim"),
+    "CHIM-1-4": { quand: "base", run: (S, c) => {
+      if (!c.choix.length) return ask("domaine", [...DOMAINES], "Sur quelle piste gagnez-vous votre XP ?");
+      gainXP(S, c.p, c.choix[0], 1);
+    } },
+    "CHIM-1-5": defausseVisible,
+    "CHIM-2-1": { quand: "recherche", run: (S, c) => {
+      const j = S.joueurs[c.p];
+      if (c.choix.length === 0) { const o = DOMAINES.filter(d => j.xp[d] > 0); return o.length ? ask("domaine", o, "Déplacez 2 XP : domaine de départ", true) : undefined; }
+      if (c.choix[0] === null) return;
+      if (c.choix.length === 1) return ask("domaine", DOMAINES.filter(d => d !== c.choix[0]), "Domaine d'arrivée");
+      const [a, b] = c.choix, k = Math.min(2, j.xp[a], MAX_PISTE - j.xp[b]);
+      j.xp[a] -= k; j.xp[b] += k; log(S, `${j.nom} déplace ${k} XP de ${D(a)} vers ${D(b)}`);
+      apresXP(S, c.p, b);
+    } },
+    "CHIM-2-2": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) return ask("joueur", autres(S, c.p), "Un joueur ne pourra pas acquérir de carte ce tour");
+      S.t.bloques.push(c.choix[0]); log(S, `${nom(S, c.choix[0])} ne peut pas acquérir de carte ce tour`);
+    } },
+    // Sabotage : un adversaire défausse un de ses objectifs et en pioche un nouveau
+    "CHIM-2-5": { quand: "censure", run: (S, c) => {
+      lire(c);
+      if (c.cible === undefined) {
+        const cibles = autres(S, c.p).filter(q => S.joueurs[q].objectifs.length);
+        if (!cibles.length) { log(S, "Sabotage : aucun adversaire n'a d'objectif"); return; }
+        c.attendu = "cible"; return ask("joueur", cibles, "Sabotage : quel joueur défausse un objectif ?");
+      }
+      const t = S.joueurs[c.cible];
+      if (c.obj === undefined) { if (t.objectifs.length === 1) c.obj = t.objectifs[0].id; else { c.attendu = "obj"; return ask("objectif", t.objectifs.map(o => o.id), "Quel objectif défausse-t-il ?"); } }
+      t.objectifs = t.objectifs.filter(o => o.id !== c.obj); S.objDefausse.push(c.obj);
+      log(S, `${nom(S, c.p)} sabote : ${t.nom} défausse « ${OBJ[c.obj].nom} »`);
+      for (const o of objectifsDe(S, c.p, "O-SABOTEUR")) o.n++;
+      piocherObjectif(S, c.cible, "remplace son objectif");
+    } },
+    "CHIM-3-1": { quand: "recherche", run: (S, c) => {
+      const j = S.joueurs[c.p];
+      if (c.choix.length) { gainVeille(S, c.p, -1); gainXP(S, c.p, c.choix[c.choix.length - 1], 1); }
+      const o = DOMAINES.filter(d => j.xp[d] < MAX_PISTE);
+      if (j.veille > 0 && o.length) return ask("domaine", o, `Convertissez vos Veilles (${j.veille} restantes) : piste ?`);
+    } },
+
+    // ---- Censures ajoutées le 08/11/2026 ----
+    "BIO-1-6": { quand: "censure", run: () => {} }, // Contagion : appliquée au calcul des Veilles des joueurs censurés
+    // Inoculation forcée : chaque autre joueur perd 1 XP dans sa piste la plus haute hors 7 ;
+    // en cas d'égalité, c'est le joueur touché qui choisit la piste (Oni, 08/11/2026)
+    "BIO-2-6": { quand: "censure", run: (S, c) => {
+      const L = autres(S, c.p);
+      if (c.i === undefined) c.i = 0;
+      if (c.touche !== undefined) { gainXP(S, c.touche, c.choix[c.choix.length - 1], -1, c.p); c.touche = undefined; c.i++; }
+      while (c.i < L.length) {
+        const q = L[c.i], x = S.joueurs[q].xp, P = DOMAINES.filter(d => x[d] > 0 && x[d] < MAX_PISTE);
+        const m = P.length ? Math.max(...P.map(d => x[d])) : 0, hautes = P.filter(d => x[d] === m);
+        if (hautes.length > 1) { c.touche = q; return { ...ask("domaine", hautes, `Inoculation forcée : ${nom(S, q)} choisit la piste qui perd 1 XP`), pour: q }; }
+        if (hautes.length === 1) gainXP(S, q, hautes[0], -1, c.p);
+        c.i++;
+      }
+    } },
+    // Expropriation : voler un jeton de palier non utilisé (le voleur peut s'en servir à partir du tour suivant, À VALIDER)
+    "BIO-3-4": { quand: "censure", run: (S, c) => {
+      lire(c);
+      const volables = q => S.joueurs[q].jetons.filter(t => !t.used);
+      if (c.cible === undefined) {
+        const L = autres(S, c.p).filter(q => volables(q).length);
+        if (!L.length) { log(S, "Expropriation : aucun jeton à voler"); return; }
+        c.attendu = "cible"; return ask("joueur", L, "Expropriation : à quel joueur volez-vous un jeton ?");
+      }
+      if (c.jeton === undefined) { const L = volables(c.cible).map(t => t.k); if (L.length === 1) c.jeton = L[0]; else { c.attendu = "jeton"; return ask("jeton", L, "Quel jeton volez-vous ?"); } }
+      const t = S.joueurs[c.cible].jetons.find(x => x.k === c.jeton && !x.used);
+      S.joueurs[c.cible].jetons = S.joueurs[c.cible].jetons.filter(x => x !== t);
+      S.joueurs[c.p].jetons.push({ ...t, tour: S.tour });
+      if (t.cle) S.paliers[t.cle] = c.p;
+      log(S, `${nom(S, c.p)} vole le jeton « ${JETONS[t.cle] ? JETONS[t.cle].nom : t.k} » de ${nom(S, c.cible)}`);
+    } },
+    // Interception : regarder la prochaine carte d'une pile (en secret) et la placer sous la pile
+    "PHYS-1-6": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) { const L = DOMAINES.filter(d => S.piles[d].length >= 2); return L.length ? ask("domaine", L, "Interception : dans quelle pile ?") : log(S, "Interception : aucune pile assez grande"); }
+      const d = c.choix[0];
+      if (c.choix.length === 1) return { ...ask("ouinon", [true], `Prochaine carte de ${D(d)} : « ${carte(S.piles[d][0]).nom} ». Elle part sous la pile.`), prive: true };
+      S.piles[d].push(S.piles[d].shift());
+      log(S, `${nom(S, c.p)} place la prochaine carte ${D(d)} sous la pile`);
+    } },
+    // Inversion des pôles : échanger sa gemme avec celle d'un joueur
+    "PHYS-1-7": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) return ask("joueur", autres(S, c.p), "Inversion des pôles : avec qui échangez-vous votre gemme ?");
+      const a = S.joueurs[c.p], b = S.joueurs[c.choix[0]];
+      [a.gemme, b.gemme] = [b.gemme, a.gemme];
+      log(S, `${a.nom} échange sa gemme avec ${b.nom} (${a.gemme} / ${b.gemme})`);
+    } },
+    // Gel des fonds : la carte visible du domaine censuré ne peut pas être acquise ce tour
+    "ECO-2-6": { quand: "censure", run: S => { S.t.gel = S.t.censure; log(S, `Gel des fonds : la carte Progrès ${D(S.t.censure)} ne peut pas être acquise ce tour`); } },
+    // Précipité : un joueur perd 1 Veille (même effet qu'Onde de Choc pour l'instant)
+    "CHIM-1-6": { quand: "censure", run: (S, c) => {
+      if (!c.choix.length) return ask("joueur", autres(S, c.p), "Un joueur perd 1 Veille");
+      gainVeille(S, c.choix[0], -1, c.p);
+    } },
+
+    // jetons
+    "J-regard": regard("jeton"),
+    "J-veto": { quand: "veto", run: (S, c) => {
+      if (!c.choix.length) {
+        const o = autres(S, c.p).filter(q => !S.t.annules.includes(q));
+        return ask("joueur", o, "Veto : annulez le vote de censure d'un adversaire (ou passez pour garder le jeton)", true);
+      }
+      if (c.choix[0] === null) return;
+      useJeton(S, c.p, "veto"); S.t.annules.push(c.choix[0]);
+      log(S, `${nom(S, c.p)} utilise son Veto : le vote de ${nom(S, c.choix[0])} est annulé`);
+    } },
+  };
+  // Effets prévus pour l'étape 3 (effets « Tour suivant », cartes qui changent le déroulement du tour)
+  const A_VENIR = ["BIO-3-3", "PHYS-1-5", "PHYS-2-2", "PHYS-2-3", "PHYS-3-1", "PHYS-3-2", "PHYS-3-3",
+    "ECO-1-5", "ECO-2-3", "CHIM-2-3", "CHIM-2-4", "CHIM-3-2", "CHIM-3-3"];
+  const programme = id => !!FX[id];
+
+  // ---------- déroulement du tour ----------
+  // 1. révélation : jetons annoncés, ordre de jeu, Vetos ; 2. décompte des votes (compterVotes) ; 3–4. résolution ; 5. acquisition
+  function revelation(S) {
+    const tous = S.joueurs.map((_, i) => i);
+    S.t = { bloques: [], annules: [], vote2: [], immunes: [], normalFait: false, gel: null,
+      jouees: tous.map(p => ({ r: carteJouee(S, p, "R"), c: carteJouee(S, p, "C") })) };
+    for (const p of tous) for (const k of S.joueurs[p].prog.jetons || []) {
+      useJeton(S, p, k);
+      S.t[k === "vote2" ? "vote2" : "immunes"].push(p);
+      log(S, `${nom(S, p)} révèle son jeton « ${k === "vote2" ? "Vote double" : "Immunité"} »`);
+    }
+    S.t.gemmes = tous.map(p => gemmeEff(S, p));
+    S.ordre = calcOrdre(S, S.t.gemmes);
+    echangerGemmes(S);
+    const E = S.ordre.filter(p => jetonUtilisable(S, p, "veto")).map(p => ({ k: "fx", p, id: "J-veto", quand: "veto" }));
+    E.push({ k: "vote" });
+    S.etapes = E; S.phase = "resol";
+    avancer(S);
+  }
+
+  function compterVotes(S) {
+    const votes = { bio: 0, phys: 0, eco: 0, chim: 0 }, tous = S.joueurs.map((_, i) => i);
+    // Mutation Cachée : vote double, quel que soit le résultat du vote (À VALIDER) ; jeton Vote double : ×2
+    for (const p of tous) if (!S.t.annules.includes(p))
+      votes[S.joueurs[p].prog.c] += (S.t.jouees[p].c === "BIO-1-5" ? 2 : 1) * (S.t.vote2.includes(p) ? 2 : 1);
+    const max = Math.max(...Object.values(votes));
+    const censure = DOMAINES.filter(d => votes[d] === max).sort((a, b) => S.hier.indexOf(b) - S.hier.indexOf(a))[0]; // égalité : le plus bas
+    const haut = S.hier[0];
+    log(S, `Tour ${S.tour} — votes : ${DOMAINES.map(d => D(d) + " " + votes[d]).join(", ")} → ${D(censure)} est censuré`);
+    Object.assign(S.t, { votes, censure,
+      actives: tous.filter(p => !S.t.annules.includes(p) && S.joueurs[p].prog.c === censure),
+      censures: tous.filter(p => S.joueurs[p].prog.r === censure && !S.t.immunes.includes(p)) });
+    for (const p of S.t.immunes) if (S.joueurs[p].prog.r === censure) log(S, `${nom(S, p)} est immunisé : sa Recherche n'est pas censurée`);
+    // compteurs des objectifs liés au vote
+    for (const p of tous) for (const o of S.joueurs[p].objectifs) {
+      const active = S.t.actives.includes(p);
+      if (o.id === "O-MARTYR") o.n = S.t.censures.includes(p) ? o.n + 1 : 0;
+      if (o.id === "O-CENS2") o.n = active ? o.n + 1 : 0;
+      if (o.id === "O-HAUT" && active && censure === haut) o.ok = true;
+      if (o.id === "O-SEUL" && active && S.t.actives.length === 1) o.ok = true;
+    }
+    const E = [];
+    const fx = (p, id, quand) => { const f = FX[id]; if (f && f.quand === quand) E.push({ k: "fx", p, id, quand }); else if (!f && A_VENIR.includes(id) && quand === (carte(id).type === "C" ? "censure" : "recherche")) E.push({ k: "avenir", p, id }); };
+    // Phase 3 : effets des Censures ayant visé le domaine censuré, puis Veilles (Oni, 07/11/2026) :
+    // +1 par Censure efficace (+1 de plus si le domaine censuré est à 7 chez un adversaire qui a un objectif : chasse au leader),
+    // +2 par joueur censuré (3 si Lobby Vert est efficace). Veilles données après les effets des Censures (À VALIDER).
+    for (const p of S.ordre) if (S.t.actives.includes(p)) fx(p, S.t.jouees[p].c, "censure");
+    for (const p of S.ordre) if (S.t.actives.includes(p)) {
+      const prime = autres(S, p).some(q => S.joueurs[q].objectifs.length && S.joueurs[q].xp[censure] >= MAX_PISTE);
+      E.push({ k: "veille", p, n: prime ? 2 : 1, raison: prime ? "Censure efficace + chasse au leader" : "Censure efficace" });
+    }
+    const lobby = S.t.actives.some(p => S.t.jouees[p].c === "ECO-1-5"), contagion = S.t.actives.some(p => S.t.jouees[p].c === "BIO-1-6");
+    const nV = (lobby ? 3 : 2) - (contagion ? 1 : 0);
+    for (const p of S.ordre) if (S.t.censures.includes(p)) { E.push({ k: "veille", p, n: nV, raison: "Recherche censurée" + (lobby ? " (Lobby Vert)" : "") + (contagion ? " (Contagion)" : "") }); fx(p, S.t.jouees[p].r, "censure_r"); }
+    // Phase 4 : Recherches non censurées (+1 XP de base, puis effet)
+    for (const p of S.ordre) if (!S.t.censures.includes(p)) {
+      const id = S.t.jouees[p].r;
+      if (FX[id] && FX[id].quand === "base") fx(p, id, "base"); else E.push({ k: "xp", p });
+      fx(p, id, "recherche");
+    }
+    E.push({ k: "acq" });
+    S.etapes = E.concat(S.etapes);
+  }
+
+  function avancer(S) {
+    verifier(S);
+    while (!S.attente && S.gagnant === null && S.etapes.length) {
+      const e = S.etapes.shift();
+      if (e.k === "veille") avecCause(e.raison, () => gainVeille(S, e.p, e.n));
+      else if (e.k === "xp") avecCause("Recherche", () => gainXP(S, e.p, S.joueurs[e.p].prog.r, 1));
+      else if (e.k === "vote") compterVotes(S);
+      else if (e.k === "avenir") log(S, `« ${carte(e.id).nom} » : effet pas encore programmé dans le prototype`);
+      else if (e.k === "fx") { const ctx = { p: e.p, id: e.id, quand: e.quand, choix: [] }; poser(S, ctx, avecCause(`${nomSource(e.id)} de ${nom(S, e.p)}`, () => FX[e.id].run(S, ctx))); }
+      else if (e.k === "acq") debutAcquisition(S);
+      verifier(S);
+    }
+  }
+  function poser(S, ctx, demande) {
+    if (!demande || (!demande.options.length && !demande.passer)) { S.attente = null; return; }
+    S.attente = { p: demande.pour !== undefined ? demande.pour : ctx.p, ctx, demande };
+  }
+
+  function debutAcquisition(S) {
+    S.phase = "acq";
+    S.ordre = calcOrdre(S, S.t.gemmes); // recalculé : la hiérarchie a pu changer (Antimatière) (À VALIDER)
+    S.acq = -1; suivantAcq(S);
+  }
+  function suivantAcq(S) {
+    S.t.normalFait = false;
+    do S.acq++; while (S.acq < S.ordre.length && S.t.bloques.includes(S.ordre[S.acq]));
+    if (S.acq >= S.ordre.length) finTour(S);
+  }
+  function finTour(S) {
+    for (const j of S.joueurs) { j.verrou = ["R-" + j.prog.r, "C-" + j.prog.c]; j.prog = null; }
+    enHaut(S, S.t.censure);
+    (S.histo = S.histo || []).push({ tour: S.tour, dom: S.t.censure, votes: S.t.votes }); // historique des censures (affichage)
+    S.dernier = S.t; S.t = null; S.tour++; S.phase = "prog"; S.ordre = [];
+  }
+
+  // ---------- point d'entrée unique des actions ----------
+  // Renvoie "" si l'action est appliquée, sinon la raison du refus.
+  const ANNONCES = ["vote2", "immunite"]; // jetons annoncés face cachée avec la programmation
+  const ACTIONS = {
+    programmer(S, p, { r, c, jetons = [] } = {}) {
+      if (S.phase !== "prog") return "Ce n'est pas la phase de programmation";
+      const j = S.joueurs[p];
+      if (j.prog) return "Vous avez déjà programmé vos cartes";
+      if (!DOMAINES.includes(r) || !DOMAINES.includes(c)) return "Choisissez une Recherche et une Censure";
+      if (j.verrou.includes("R-" + r)) return "Cette Recherche est verrouillée ce tour";
+      if (j.verrou.includes("C-" + c)) return "Cette Censure est verrouillée ce tour";
+      if (!Array.isArray(jetons) || jetons.some(k => !ANNONCES.includes(k) || !jetonUtilisable(S, p, k)) || new Set(jetons).size !== jetons.length)
+        return "Jeton non disponible";
+      j.prog = { r, c, jetons };
+      if (S.joueurs.every(x => x.prog)) revelation(S);
+      return "";
+    },
+    annuler(S, p) {
+      if (S.phase !== "prog" || !S.joueurs[p].prog) return "Rien à annuler";
+      S.joueurs[p].prog = null; return "";
+    },
+    choisir(S, p, { v } = {}) {
+      const a = S.attente;
+      if (!a || a.p !== p) return "Aucun choix attendu de votre part";
+      if (v === null || v === undefined) { if (!a.demande.passer) return "Un choix est obligatoire"; v = null; }
+      else if (!a.demande.options.includes(v)) return "Choix impossible";
+      a.ctx.choix.push(v);
+      S.attente = null;
+      poser(S, a.ctx, avecCause(`${nomSource(a.ctx.id)} de ${nom(S, a.ctx.p)}`, () => FX[a.ctx.id].run(S, a.ctx)));
+      avancer(S);
+      return "";
+    },
+    convertir(S, p, { dom } = {}) {
+      const j = S.joueurs[p], cout = jetonUtilisable(S, p, "conversion") ? 2 : 3;
+      if (j.veille < cout) return `Il faut ${cout} Veilles`;
+      if (!DOMAINES.includes(dom) || j.xp[dom] >= MAX_PISTE) return "Piste invalide ou pleine";
+      avecCause(`conversion de ${cout} Veilles`, () => { gainVeille(S, p, -cout); gainXP(S, p, dom, 1); });
+      return "";
+    },
+    // jeton à usage libre (Regard vers l'avenir)
+    jeton(S, p, { k } = {}) {
+      if (k !== "regard") return "Ce jeton ne s'utilise pas ainsi";
+      if (S.attente) return "Un choix est en cours";
+      if (!jetonUtilisable(S, p, "regard")) return "Jeton non disponible";
+      const ctx = { p, id: "J-regard", quand: "jeton", choix: [] };
+      poser(S, ctx, FX["J-regard"].run(S, ctx));
+      return "";
+    },
+    // acquisition normale (il faut atteindre le coût) ou, avec le jeton Progrès gratuit, une acquisition en plus sans condition de coût
+    acquerir(S, p, { dom, gratuit = false } = {}) {
+      if (S.phase !== "acq" || S.ordre[S.acq] !== p) return "Ce n'est pas votre tour d'acquérir";
+      if (S.attente) return "Un choix est en cours";
+      const id = S.visibles[dom];
+      if (!id) return "Aucune carte visible dans ce domaine";
+      if (S.t.gel === dom) return "Gel des fonds : cette carte ne peut pas être acquise ce tour";
+      const k = carte(id), j = S.joueurs[p];
+      if (gratuit) { if (!jetonUtilisable(S, p, "achat2")) return "Jeton Progrès gratuit non disponible"; }
+      else if (S.t.normalFait) return "Vous avez déjà fait votre acquisition normale";
+      else if (!peutPayer(j, k.cout)) return "Expérience insuffisante";
+      const slot = k.type + "-" + k.dom, ancien = j.cartes[slot];
+      // la nouvelle carte prend la place de l'ancienne, verrouillée ou non (À VALIDER)
+      j.cartes[slot] = id; j.achats = (j.achats || 0) + 1;
+      if (!carte(ancien).depart) S.defausse.push(ancien);
+      log(S, `${j.nom} acquiert « ${k.nom} » (remplace « ${carte(ancien).nom} »)`);
+      reveler(S, dom);
+      if (gratuit) { useJeton(S, p, "achat2"); log(S, `${j.nom} utilise son jeton Progrès gratuit`); }
+      else S.t.normalFait = true;
+      // le tour d'acquisition continue tant que le joueur peut encore utiliser l'une des deux acquisitions
+      if (S.t.normalFait && !jetonUtilisable(S, p, "achat2")) suivantAcq(S);
+      return "";
+    },
+    passer(S, p) {
+      if (S.phase !== "acq" || S.ordre[S.acq] !== p) return "Ce n'est pas votre tour";
+      if (S.attente) return "Un choix est en cours";
+      suivantAcq(S); return "";
+    },
+  };
+  function apply(S, p, type, args) {
+    if (S.gagnant !== null) return "Partie terminée";
+    if (!(p >= 0 && p < S.joueurs.length)) return "Joueur inconnu";
+    const f = ACTIONS[type];
+    if (!f) return "Action inconnue";
+    const r = f(S, p, args || {});
+    if (!r) verifier(S);
+    return r;
+  }
+
+  // Qui doit agir maintenant (liste d'indices de joueurs)
+  function attendus(S) {
+    if (S.gagnant !== null) return [];
+    const L = [];
+    if (S.attente) L.push(S.attente.p);
+    if (S.phase === "prog") S.joueurs.forEach((j, i) => { if (!j.prog && !L.includes(i)) L.push(i); });
+    if (S.phase === "acq" && !S.attente) L.push(S.ordre[S.acq]);
+    return L;
+  }
+
+  // Vue envoyée à un joueur : programmation des autres cachée, ordre des piles et des objectifs caché,
+  // choix secrets (Regard, Compost…) cachés aux autres joueurs
+  function viewFor(S, p) {
+    const V = JSON.parse(JSON.stringify(S));
+    if (S.phase === "prog") V.joueurs.forEach((j, i) => { if (i !== p && j.prog) j.prog = { cache: true }; });
+    for (const d of DOMAINES) V.piles[d] = { reste: S.piles[d].length, suivant: S.piles[d][0] ? carte(S.piles[d][0]).type : null };
+    V.objPile = { reste: S.objPile.length };
+    if (S.attente && S.attente.demande.prive && S.attente.p !== p)
+      V.attente = { p: S.attente.p, ctx: { id: S.attente.ctx.id }, demande: { type: S.attente.demande.type, prive: true, options: [], texte: `${nom(S, S.attente.p)} fait un choix secret` } };
+    return V;
+  }
+
+  return { VERSION, setRng, shuffle, newGame, apply, ACTIONS, attendus, viewFor, carte, disponibles, peutPayer,
+    jetonUtilisable, programme, A_VENIR, FX, OK, DOMAINES, PAR_ID, OBJ, JETONS };
+})();
+if (typeof module !== "undefined") module.exports = EK;
+
+// IA basique (automa) d'Eurekaïe ! — sans DOM, utilisable dans la page et sous Node.
+// Heuristiques simples + un peu de hasard ; aucune simulation de la suite de la partie.
+// L'IA n'utilise que l'information publique et la sienne (jamais la programmation secrète des autres).
+const IA = (() => {
+  const E = typeof module !== "undefined" ? require("./engine.js") : EK;
+  const C = typeof module !== "undefined" ? require("./cartes.js") : CARTES;
+  const DOM = C.DOMAINES, MAX = C.MAX_PISTE;
+  let RNG = Math.random;
+  const setRng = f => { RNG = f; };
+  const bruit = k => RNG() * k;
+  const autres = (S, p) => S.joueurs.map((_, i) => i).filter(i => i !== p);
+  const total = j => DOM.reduce((s, d) => s + j.xp[d], 0);
+  const menace = (S, q) => { const j = S.joueurs[q]; return total(j) + 6 * j.objectifs.length + 3 * DOM.filter(d => j.xp[d] >= MAX).length; };
+  const leader = (S, L) => L.slice().sort((a, b) => menace(S, b) - menace(S, a))[0];
+  const aObj = (S, p, id) => S.joueurs[p].objectifs.some(o => o.id === id);
+  const presDe7 = (S, p) => DOM.some(d => S.joueurs[p].xp[d] === MAX - 1 && !S.joueurs[p].sept[d]);
+  const meilleur = (L, f) => L.slice().sort((a, b) => f(b) - f(a))[0];
+
+  // domaine vers lequel l'IA pousse : la piste la plus avancée qui n'est pas encore à 7
+  function focus(S, p) {
+    const j = S.joueurs[p], L = DOM.filter(d => j.xp[d] < MAX);
+    return L.length ? L.sort((a, b) => (j.xp[b] - j.xp[a]) || (S.hier.indexOf(a) - S.hier.indexOf(b)))[0] : DOM[0];
+  }
+  // intérêt d'un +1 XP dans un domaine
+  function valeurGain(S, p, d) {
+    const j = S.joueurs[p], x = j.xp[d];
+    if (x >= MAX) return 1; // 2 Veilles
+    let v = 2 + x * 0.5;
+    if (aObj(S, p, "O-QUATRE") && x < 4) v += 3;
+    if (aObj(S, p, "O-PAIRE")) { const L = DOM.filter(e => j.xp[e] < MAX); if (L.length && x < Math.max(...L.map(e => j.xp[e]))) v += 3; }
+    if ((x + 1 === 3 || x + 1 === 5) && S.paliers[d + "-" + (x + 1)] === null) v += 1.5;
+    return v;
+  }
+  const meilleurGain = (S, p, L) => meilleur(L, d => valeurGain(S, p, d));
+  const pirePerte = (S, p, L) => {
+    const j = S.joueurs[p], f = focus(S, p);
+    return meilleur(L, d => (j.xp[d] === 0 ? -5 : 0) + (d === f ? -4 : 0) - j.xp[d] * 0.3 + (j.xp[d] >= MAX ? -3 : 0));
+  };
+  // facilité d'un objectif pour un joueur (plus c'est grand, mieux c'est)
+  function facilite(S, p, id) {
+    const j = S.joueurs[p];
+    if (E.OK[id](S, p, { id, n: 0, v: [], ok: false })) return 20;
+    switch (id) {
+      case "O-QUATRE": return -DOM.reduce((s, d) => s + Math.max(0, 4 - j.xp[d]), 0);
+      case "O-VEILLE6": return j.veille - 6;
+      case "O-NIV3": return Object.values(j.cartes).filter(c => E.carte(c).niveau >= 2).length - 4;
+      case "O-SANSBASE": return -Object.values(j.cartes).filter(c => E.carte(c).depart).length;
+      case "O-SEPTHAUT": return 2;
+      case "O-MARTYR": case "O-CENS2": case "O-HAUT": return 1;
+      default: return 0;
+    }
+  }
+
+  // ---------- programmation ----------
+  function programmer(S, p) {
+    const j = S.joueurs[p];
+    const libresR = DOM.filter(d => !j.verrou.includes("R-" + d)), libresC = DOM.filter(d => !j.verrou.includes("C-" + d));
+    // risque d'être censuré : domaine où l'IA mène (les autres la visent), bas de hiérarchie (égalités)
+    const risque = d => {
+      let r = 0;
+      if (autres(S, p).every(q => S.joueurs[q].xp[d] < j.xp[d])) r += 1;
+      if (S.hier.indexOf(d) === DOM.length - 1) r += 0.5;
+      if (S.hier[0] === d) r -= 0.5;
+      if (j.objectifs.length && j.xp[d] >= MAX) r += 1; // chasse au leader
+      return r;
+    };
+    const r = meilleur(libresR, d => valeurGain(S, p, d) + 0.6 * E.carte(j.cartes["R-" + d]).niveau - 1.5 * risque(d) + bruit(1.5));
+    // probabilité qu'un adversaire recherche d : selon ses Recherches libres et son XP
+    const proba = (q, d) => {
+      const k = S.joueurs[q], w = e => (k.verrou.includes("R-" + e) ? 0 : 1 + k.xp[e] * (k.xp[e] < MAX ? 1 : 0.3));
+      const s = DOM.reduce((t, e) => t + w(e), 0);
+      return s ? w(d) / s : 0;
+    };
+    const c = meilleur(libresC, d => {
+      let v = autres(S, p).reduce((t, q) => t + proba(q, d) * (1 + menace(S, q) / 20), 0) * 3;
+      if (autres(S, p).some(q => S.joueurs[q].objectifs.length && S.joueurs[q].xp[d] >= MAX)) v += 1.5;
+      if (d === r) v += aObj(S, p, "O-MARTYR") ? 3 : -2;
+      if (aObj(S, p, "O-HAUT") && d === S.hier[0]) v += 3;
+      if (aObj(S, p, "O-SEPTHAUT") && j.xp[d] >= MAX && d !== r) v += 4;
+      v += 0.3 * E.carte(j.cartes["C-" + d]).niveau;
+      return v + bruit(1.5);
+    });
+    const jetons = [];
+    if (E.jetonUtilisable(S, p, "immunite") && (j.xp[r] >= 5 || j.objectifs.length) && RNG() < 0.6) jetons.push("immunite");
+    if (E.jetonUtilisable(S, p, "vote2") && RNG() < 0.5) jetons.push("vote2");
+    return { type: "programmer", args: { r, c, jetons } };
+  }
+
+  // ---------- choix demandés par une carte ou un jeton ----------
+  const GAINS = ["BIO-2-1", "ECO-2-1", "CHIM-1-4", "CHIM-3-1"], PERTES = ["BIO-2-3", "PHYS-2-1"];
+  function choisir(S, p) {
+    const a = S.attente, dm = a.demande, id = a.ctx.id, o = dm.options, n = a.ctx.choix.length;
+    let v = o.length ? o[0] : null;
+    if (dm.type === "ouinon") {
+      if (id === "ECO-2-5") { // Compost : enterrer un objectif peu utile pour moi, ou utile à un adversaire proche de 7
+        const top = dm.objet, moi = presDe7(S, p), lui = autres(S, p).find(q => presDe7(S, q));
+        v = moi ? facilite(S, p, top) < 1 : lui !== undefined ? facilite(S, lui, top) >= 1 : RNG() < 0.3;
+      } else v = true; // Vaccin, Recycleur : 1 Veille pour 1 XP, toujours rentable
+    } else if (dm.type === "joueur") {
+      if (id === "J-veto") { const vise = o.filter(q => S.joueurs[q].prog.c === S.joueurs[p].prog.r); v = vise.length ? vise[0] : null; }
+      else if (id === "BIO-3-2") v = null; // Panacée : l'IA ne l'utilise pas (trop subtile)
+      else if (id === "PHYS-1-7") v = meilleur(o, q => S.joueurs[q].gemme); // Inversion des pôles : prendre la plus grande gemme
+      else if (id === "BIO-2-5") { // Mimétisme : prendre un objectif plus facile que le mien
+        const mien = Math.max(...S.joueurs[p].objectifs.map(x => facilite(S, p, x.id)));
+        const q = meilleur(o, q => Math.max(...S.joueurs[q].objectifs.map(x => facilite(S, p, x.id))));
+        v = Math.max(...S.joueurs[q].objectifs.map(x => facilite(S, p, x.id))) > mien ? q : null;
+      }
+      else { const L = o.filter(q => q !== p); v = L.length ? leader(S, L) : (dm.passer ? null : o[0]); }
+    } else if (dm.type === "domaine") {
+      if (GAINS.includes(id)) v = meilleurGain(S, p, o);
+      else if (PERTES.includes(id) || id === "BIO-2-6") v = pirePerte(S, p, o);
+      else if (id === "CHIM-2-1") { // Transmutation
+        if (n === 0) { const L = o.filter(d => d !== focus(S, p)); v = L.length ? pirePerte(S, p, L) : null; }
+        else v = meilleurGain(S, p, o);
+      }
+      else if (id === "PHYS-1-6") { // Interception : la pile du domaine où le leader est le plus fort
+        const q = leader(S, autres(S, p)); v = meilleur(o, d => S.joueurs[q].xp[d]);
+      }
+      else if (id === "ECO-1-2" || id === "CHIM-1-5") { // défausser la carte visible qui sert le leader
+        const q = leader(S, autres(S, p));
+        const L = o.filter(d => E.peutPayer(S.joueurs[q], E.carte(S.visibles[d]).cout));
+        v = L.length ? meilleur(L, d => E.carte(S.visibles[d]).niveau) : o[Math.floor(RNG() * o.length)];
+      }
+      else v = o[Math.floor(RNG() * o.length)];
+    } else if (dm.type === "jeton") { // Expropriation : le jeton le plus utile
+      const pref = ["gemmeOr", "immunite", "conversion", "veto", "vote2", "regard", "achat2"];
+      v = o.slice().sort((a, b) => pref.indexOf(a) - pref.indexOf(b))[0];
+    } else if (dm.type === "objectif") {
+      if (id === "J-regard" || id === "PHYS-2-5") { // ordre : le plus facile pour moi si je vais piocher, sinon le plus dur pour le suivant
+        const moi = presDe7(S, p), lui = autres(S, p).find(q => presDe7(S, q));
+        v = moi || lui === undefined ? meilleur(o, x => facilite(S, p, x)) : meilleur(o, x => -facilite(S, lui, x));
+      }
+      else if (id === "BIO-2-5") v = a.ctx.attendu === "mien" ? meilleur(o, x => -facilite(S, p, x)) : meilleur(o, x => facilite(S, p, x));
+      else if (id === "CHIM-2-5") v = meilleur(o, x => facilite(S, a.ctx.cible, x));
+    }
+    return { type: "choisir", args: { v } };
+  }
+
+  // ---------- acquisition ----------
+  function acquerir(S, p) {
+    const j = S.joueurs[p];
+    const val = id => {
+      const c = E.carte(id), ancien = E.carte(j.cartes[c.type + "-" + c.dom]);
+      let v = 2 * c.niveau - 2 * ancien.niveau + (ancien.depart ? 1 : 0) - (E.A_VENIR.includes(id) ? 1.5 : 0);
+      if (aObj(S, p, "O-SANSBASE") && ancien.depart) v += 3;
+      if (aObj(S, p, "O-NIV3") && c.niveau === 3) v += 4;
+      return v;
+    };
+    const visibles = DOM.filter(d => S.visibles[d] && S.t.gel !== d).map(d => S.visibles[d]);
+    // d'abord l'acquisition normale, puis le Progrès gratuit (sans condition de coût) s'il reste une carte intéressante
+    const normal = S.t.normalFait ? [] : visibles.filter(id => E.peutPayer(j, E.carte(id).cout) && val(id) > 0);
+    if (normal.length) return { type: "acquerir", args: { dom: E.carte(meilleur(normal, val)).dom } };
+    const gratuit = E.jetonUtilisable(S, p, "achat2") ? visibles.filter(id => val(id) > 0) : [];
+    if (gratuit.length) return { type: "acquerir", args: { dom: E.carte(meilleur(gratuit, val)).dom, gratuit: true } };
+    return { type: "passer", args: {} };
+  }
+
+  // ---------- point d'entrée ----------
+  // action que l'IA veut jouer pour le joueur p (ou null si elle n'a rien à faire)
+  function decider(S, p) {
+    if (S.gagnant !== null) return null;
+    if (S.attente) return S.attente.p === p ? choisir(S, p) : null;
+    const j = S.joueurs[p], cout = E.jetonUtilisable(S, p, "conversion") ? 2 : 3;
+    const aMoi = (S.phase === "prog" && !j.prog) || (S.phase === "acq" && S.ordre[S.acq] === p);
+    if (!aMoi) return null;
+    if (j.veille >= cout) { const L = DOM.filter(d => j.xp[d] < MAX); if (L.length) return { type: "convertir", args: { dom: meilleurGain(S, p, L) } }; }
+    if (E.jetonUtilisable(S, p, "regard") && presDe7(S, p)) return { type: "jeton", args: { k: "regard" } };
+    return S.phase === "prog" ? programmer(S, p) : acquerir(S, p);
+  }
+  // joue une action ; si elle est refusée (cas imprévu), se rabat sur un coup légal simple. Renvoie l'action jouée ou null.
+  function jouer(S, p) {
+    const act = decider(S, p);
+    if (!act) return null;
+    let err = E.apply(S, p, act.type, act.args);
+    if (!err) return act;
+    let repli;
+    if (S.attente && S.attente.p === p) repli = { type: "choisir", args: { v: S.attente.demande.passer ? null : S.attente.demande.options[0] } };
+    else if (S.phase === "prog") { const L = E.disponibles(S, p); repli = { type: "programmer", args: { r: L.find(s => s[0] === "R").slice(2), c: L.find(s => s[0] === "C").slice(2) } }; }
+    else repli = { type: "passer", args: {} };
+    err = E.apply(S, p, repli.type, repli.args);
+    if (err) throw new Error(`IA bloquée (${S.joueurs[p].nom}) : ${err}`);
+    repli.repli = act;
+    return repli;
+  }
+  return { setRng, decider, jouer, focus, facilite };
+})();
+if (typeof module !== "undefined") module.exports = IA;
+
+// Bilan de fin de partie d'Eurekaïe ! (comme le bilan de Swarm & Steel) : résumé chiffré + plateau final en SVG.
+// Aucun accès au DOM. Les statistiques sont gardées dans le navigateur (localStorage, clé « eurekaie-stats »).
+const BILAN = (() => {
+  const E = typeof module !== "undefined" ? require("./engine.js") : EK;
+  const C = typeof module !== "undefined" ? require("./cartes.js") : CARTES;
+  const DOM = C.DOMAINES;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const COUL_J = ["#f59f00", "#82c91e", "#f06595", "#4dabf7", "#e9ecef"];
+
+  function causeVictoire(S) {
+    const v = S.victoire;
+    if (!v) return "";
+    if (v.objectif) return C.OBJ[v.objectif].nom;
+    if (v.carte) return E.carte(v.carte).nom;
+    return "";
+  }
+  // résumé d'une partie terminée
+  function resume(S) {
+    return {
+      id: Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36),
+      date: new Date().toISOString(), version: S.version || E.VERSION, versionFin: E.VERSION,
+      n: S.joueurs.length, ia: S.joueurs.filter(j => j.ia).length, tours: S.tour,
+      gagnant: S.gagnant, gagnantNom: S.gagnant !== null ? S.joueurs[S.gagnant].nom : "", gagnantIA: S.gagnant !== null && !!S.joueurs[S.gagnant].ia,
+      victoire: causeVictoire(S),
+      censures: (S.histo || []).map(h => h.dom).concat(S.t && S.t.censure ? [S.t.censure] : []),
+      hier: S.hier.slice(),
+      joueurs: S.joueurs.map(j => ({
+        nom: j.nom, ia: !!j.ia, xp: { ...j.xp }, veille: j.veille, achats: j.achats || 0, gemme: j.gemme,
+        objectifs: j.objectifs.map(o => C.OBJ[o.id].nom),
+        jetons: j.jetons.map(t => (C.JETONS[t.cle] ? C.JETONS[t.cle].nom : t.k) + (t.used ? " (utilisé)" : "")),
+        main: ["R", "C"].map(t => DOM.map(d => { const c = E.carte(j.cartes[t + "-" + d]); return c.depart ? `${t === "R" ? "Recherche" : "Censure"} ${C.NOM_DOMAINE[d]} (base)` : c.nom; })).flat(),
+      })),
+    };
+  }
+  // plateau final : 4 pistes de 0 à 7, pions des joueurs, hiérarchie finale
+  function plateau(S) {
+    const L = 64, Wc = 34, H = 26, W = L + 8 * Wc + 8, haut = 22;
+    const coul = { bio: "#2f7fc4", phys: "#b558ad", eco: "#19b39b", chim: "#f05763" };
+    const p = [`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${haut + 4 * (H + 4) + 4}" width="${W}" font-family="Arial, sans-serif">`,
+      `<rect width="100%" height="100%" rx="6" fill="#1f232b"/>`,
+      `<text x="6" y="15" font-size="10" fill="#cfc8bb">Hiérarchie finale : ${S.hier.map((d, i) => `${i + 1}. ${esc(C.NOM_DOMAINE[d])}`).join("  ")}</text>`];
+    DOM.forEach((d, r) => {
+      const y = haut + r * (H + 4);
+      p.push(`<rect x="4" y="${y}" width="${L - 6}" height="${H}" rx="4" fill="${coul[d]}"/><text x="8" y="${y + 17}" font-size="11" font-weight="bold" fill="#fff">${esc(C.NOM_DOMAINE[d])}</text>`);
+      for (let v = 0; v <= 7; v++) {
+        const x = L + v * Wc;
+        p.push(`<rect x="${x}" y="${y}" width="${Wc - 3}" height="${H}" rx="3" fill="${v === 7 ? "#3a3f4a" : "#282d37"}" stroke="${v === 3 || v === 5 ? coul[d] : "#383e4a"}"/>`);
+        p.push(`<text x="${x + Wc - 6}" y="${y + H - 3}" font-size="7" text-anchor="end" fill="#8f887c">${v}</text>`);
+        S.joueurs.map((j, q) => [j, q]).filter(([j]) => j.xp[d] === v).forEach(([j, q], k) => {
+          const cx = x + 7 + (k % 3) * 9, cy = y + 7 + Math.floor(k / 3) * 10;
+          p.push(`<circle cx="${cx}" cy="${cy}" r="4.5" fill="${COUL_J[q]}" stroke="#000" stroke-width=".6"/><text x="${cx}" y="${cy + 2.5}" font-size="6" text-anchor="middle" font-weight="bold" fill="#111">${q + 1}</text>`);
+        });
+      }
+    });
+    p.push(`</svg>`);
+    return p.join("");
+  }
+  // agrégats par version (parties, tours moyens, cartes achetées par joueur, victoires par objectif, part des victoires IA)
+  function parVersion(liste) {
+    const V = {};
+    for (const r of liste) {
+      const v = V[r.version] || (V[r.version] = { version: r.version, n: 0, tours: 0, achats: 0, joueurs: 0, ia: 0, victoires: {} });
+      v.n++; v.tours += r.tours; v.ia += r.gagnantIA ? 1 : 0;
+      for (const j of r.joueurs) { v.achats += j.achats; v.joueurs++; }
+      v.victoires[r.victoire || "?"] = (v.victoires[r.victoire || "?"] || 0) + 1;
+    }
+    return Object.values(V).sort((a, b) => (a.version < b.version ? 1 : -1));
+  }
+  function csv(liste) {
+    const tete = ["date", "version", "joueurs", "dont IA", "tours", "gagnant", "gagnant IA", "victoire", "censures", "cartes achetées (par joueur)", "XP finale (bio/phys/éco/chim par joueur)"];
+    const q = s => `"${String(s).replace(/"/g, '""')}"`;
+    return [tete.map(q).join(";")].concat(liste.map(r => [r.date, r.version, r.n, r.ia, r.tours, r.gagnantNom, r.gagnantIA ? "oui" : "non", r.victoire,
+      r.censures.join(" "), r.joueurs.map(j => `${j.nom}:${j.achats}`).join(" "),
+      r.joueurs.map(j => `${j.nom}:${DOM.map(d => j.xp[d]).join("/")}`).join(" ")].map(q).join(";"))).join("\n");
+  }
+  return { resume, plateau, parVersion, csv };
+})();
+if (typeof module !== "undefined") module.exports = BILAN;
+
+// Interface d'Eurekaïe ! — partie sur un seul appareil (chacun son tour, écran de passage pour les choix secrets).
+// Rendu par innerHTML ; tous les clics passent par [data-a] → handle(a, d). Toutes les règles sont dans EK (engine.js).
+const UI = (() => {
+  const C = CARTES, E = EK, DOM = C.DOMAINES, D = d => C.NOM_DOMAINE[d];
+  const CLE = "eurekaie-partie", CLE_THEME = "eurekaie-theme", CLE_STATS = "eurekaie-stats";
+  const COUL_J = ["#f59f00", "#82c91e", "#f06595", "#4dabf7", "#e9ecef"];
+  let S = null;
+  let ui = { voit: null, sel: { r: null, c: null, jetons: [] }, conv: null, msg: "", nbj: 4, noms: ["", "", "", "", ""],
+    ia: [false, true, true, true, true], vitesse: 600, minuteur: null,
+    page: null, statsIA: true, statsVer: null, statsOuvert: null };
+  const estIA = p => !!S.joueurs[p].ia;
+  const humains = () => S.joueurs.filter(j => !j.ia).length;
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const stocker = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const lire = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const sauver = () => stocker(CLE, JSON.stringify(S));
+  const charger = () => { try { const t = lire(CLE); return t ? JSON.parse(t) : null; } catch (e) { return null; } };
+  const nomJ = p => esc(S.joueurs[p].nom);
+  // lettre du pion : l'initiale, ou le numéro du joueur si deux joueurs ont la même initiale
+  const initiale = p => (S.joueurs[p].nom.trim()[0] || "").toUpperCase();
+  const lettre = p => (initiale(p) && S.joueurs.filter((_, q) => initiale(q) === initiale(p)).length === 1 ? initiale(p) : String(p + 1));
+  const pion = p => `<span class="pion" style="--pj:${COUL_J[p]}" title="${nomJ(p)}">${esc(lettre(p))}</span>`;
+  const NOM_JETON = {}; for (const k of Object.keys(C.JETONS)) NOM_JETON[C.JETONS[k].k] = C.JETONS[k];
+
+  // ---------- qui doit voir l'écran en secret ----------
+  function secretPour() {
+    if (!S || S.gagnant !== null) return null;
+    let p = null;
+    if (S.attente && S.attente.demande.prive) p = S.attente.p;
+    else if (S.phase === "prog" && !S.attente) { const L = E.attendus(S).filter(q => !estIA(q)); p = L.length ? L[0] : null; }
+    if (p === null || estIA(p)) return null;
+    if (humains() <= 1) ui.voit = p; // un seul humain : pas besoin d'écran de passage
+    return p;
+  }
+  // l'IA joue toute seule, avec un petit délai pour qu'on puisse suivre
+  function tourIA() {
+    if (ui.minuteur || !S || S.gagnant !== null) return;
+    const p = E.attendus(S).find(q => estIA(q));
+    if (p === undefined) return;
+    const delai = S.phase === "prog" && !S.attente ? 50 : ui.vitesse;
+    ui.minuteur = setTimeout(() => {
+      ui.minuteur = null;
+      try { IA.jouer(S, p); } catch (e) { ui.msg = String(e.message || e); }
+      sauver(); render();
+    }, delai);
+  }
+
+  // ---------- morceaux de rendu ----------
+  function cout(c) {
+    return Object.entries(c.cout).map(([d, v]) => `<span class="pastille d-${d}" title="${D(d)} ${v}">${v}</span>`).join("");
+  }
+  function carteHTML(id, opt = {}) {
+    if (!id) return `<div class="carte vide">Pile vide</div>`;
+    const c = E.carte(id), tag = opt.bouton ? "button" : "div";
+    const attrs = opt.bouton ? ` data-a="${opt.a}" data-d="${esc(opt.d)}"${opt.off ? " disabled" : ""}` : "";
+    const effet = c.depart ? `<span class="doux">Carte de base</span>` : esc(c.effet);
+    return `<${tag} class="carte ${c.type} d-${c.dom}${opt.choisie ? " choisie" : ""}${opt.verrou ? " verrou" : ""}"${attrs}>
+      <div class="haut"><span>${c.type === "R" ? "Recherche" : "Censure"}</span><span>${D(c.dom)}</span></div>
+      <div class="nomc">${esc(c.nom)}</div><div class="effet">${effet}${opt.verrou ? "<br><b>Verrouillée</b>" : ""}</div>
+      <div class="bas">${cout(c)}<span class="niv">${"★".repeat(c.niveau)}</span></div></${tag}>`;
+  }
+  // domaine censuré à montrer sur le plateau : celui du tour en cours une fois les votes comptés, sinon celui du tour précédent
+  function censureAffichee() {
+    if (S.t && S.t.censure) return { dom: S.t.censure, votes: S.t.votes, tour: S.tour, encours: true };
+    if (S.dernier && S.dernier.censure) return { dom: S.dernier.censure, votes: S.dernier.votes, tour: S.tour - 1, encours: false };
+    return null;
+  }
+  function hierarchie() {
+    const derniere = S.dernier && S.dernier.censure;
+    let h = `<div class="hier"><span class="doux">Hiérarchie :</span>${S.hier.map((d, i) =>
+      `<span class="rang d-${d}">${i + 1}. ${D(d)}${d === derniere ? " <small>(censuré au tour précédent)</small>" : ""}</span>`).join("")}</div>`;
+    const histo = (S.histo || []).concat(S.t && S.t.censure ? [{ tour: S.tour, dom: S.t.censure }] : []);
+    if (histo.length) h += `<div class="frise"><span class="doux">Censures :</span>${histo.slice(-14).map(x =>
+      `<span class="d-${x.dom}" title="Tour ${x.tour} : ${D(x.dom)} censuré"><b>T${x.tour}</b> ${D(x.dom)}</span>`).join("")}</div>`;
+    return h;
+  }
+  function pistes() {
+    let h = "";
+    for (const d of DOM) {
+      const ce = censureAffichee(), cens = ce && ce.dom === d;
+      const nbv = ce && ce.votes ? ce.votes[d] : 0;
+      const vote = ce && ce.votes ? `<small>${nbv} vote${nbv > 1 ? "s" : ""}</small>` : "";
+      h += `<div class="piste d-${d}${cens ? " censuree" + (ce.encours ? "" : " passee") : ""}"><div class="nom">${D(d)}${cens ? `<span class="bandeau">Censuré · T${ce.tour}</span>` : ""}${vote}</div>`;
+      for (let v = 0; v <= 7; v++) {
+        const cle = d + "-" + v, J = C.JETONS[cle];
+        let inner = "";
+        if (J) {
+          const pris = S.paliers[cle];
+          inner += `<div class="jeton-palier${pris !== null ? " pris" : ""}" title="${esc(J.texte)}">${esc(J.nom)}${pris !== null && pris >= 0 ? " " + nomJ(pris) : ""}</div>`;
+        }
+        S.joueurs.forEach((j, p) => { if (j.xp[d] === v) inner += pion(p); });
+        h += `<div class="case${J ? " palier" : ""}${v === 7 ? " sept" : ""}">${inner}<span class="num">${v === 7 ? "7 ★" : v}</span></div>`;
+      }
+      h += `</div>`;
+    }
+    return h;
+  }
+  function marche() {
+    let h = `<div class="cartes">`;
+    for (const d of DOM) {
+      const reste = S.piles[d].length, suiv = S.piles[d][0] ? E.carte(S.piles[d][0]).type : null;
+      h += `<div>${carteHTML(S.visibles[d])}<div class="sous">${reste} carte${reste > 1 ? "s" : ""} dessous${suiv ? " · suivante : " + (suiv === "R" ? "Recherche" : "Censure") : ""}</div></div>`;
+    }
+    h += `</div><p class="doux" style="margin:8px 0 0">Pioche d'objectifs : ${S.objPile.length} carte${S.objPile.length > 1 ? "s" : ""}${S.objDefausse.length ? ` · défausse : ${S.objDefausse.map(id => esc(C.OBJ[id].nom)).join(", ")}` : ""}</p>`;
+    return h;
+  }
+  function etatJoueur(p) {
+    const j = S.joueurs[p];
+    if (S.phase === "prog") return j.prog ? "a programmé ✓" : "réfléchit…";
+    if (S.t && S.t.jouees) {
+      const jj = S.t.jouees[p], cens = S.t.censure && S.t.censures.includes(p);
+      return `a joué ${esc(E.carte(jj.r).nom)}${cens ? " (censurée)" : ""} + ${esc(E.carte(jj.c).nom)}`;
+    }
+    return "";
+  }
+  function joueurHTML(p) {
+    const j = S.joueurs[p], actif = E.attendus(S).includes(p);
+    const gemme = E.jetonUtilisable(S, p, "gemmeOr") ? "Gemme d'or" : `gemme ${j.gemme}`;
+    const coutConv = E.jetonUtilisable(S, p, "conversion") ? 2 : 3;
+    let h = `<div class="bloc joueur${actif ? " actif" : ""}" style="--pj:${COUL_J[p]}">
+      <div class="ligne">${pion(p)}<span class="nomj">${nomJ(p)}</span>${j.ia ? '<span class="pastille-ia">IA</span>' : ""}<span class="doux">${gemme} · ${j.veille} Veille${j.veille > 1 ? "s" : ""}</span></div>
+      <div class="doux" style="font-size:13px">${etatJoueur(p)}</div><div class="mini">`;
+    for (const t of ["R", "C"]) for (const d of DOM) {
+      const s = t + "-" + d, c = E.carte(j.cartes[s]);
+      h += `<span class="${t} d-${d}${j.verrou.includes(s) ? " lock" : ""}" title="${esc(c.effet || "Carte de base")}">${esc(c.depart ? (t === "R" ? "R " : "C ") + D(d) : c.nom)}</span>`;
+    }
+    h += `</div>`;
+    for (const o of j.objectifs) h += `<div class="obj"><b>${esc(C.OBJ[o.id].nom)}</b> — ${esc(C.OBJ[o.id].texte)}${o.n ? ` <span class="doux">(${o.n})</span>` : ""}</div>`;
+    if (j.jetons.length) h += `<div class="jetons">${j.jetons.map(t => `<span class="${t.used ? "use" : ""}" title="${esc(NOM_JETON[t.k] ? NOM_JETON[t.k].texte : "")}">${esc(NOM_JETON[t.k] ? NOM_JETON[t.k].nom : t.k)}${S.tour <= t.tour ? " (au prochain tour)" : ""}</span>`).join("")}</div>`;
+    const libre = S.gagnant === null && !S.attente;
+    h += `<div class="options">`;
+    if (!j.ia && S.gagnant === null && j.veille >= coutConv) h += `<button class="petit" data-a="conv" data-d="${p}">Convertir ${coutConv} Veilles → 1 XP</button>`;
+    if (!j.ia && libre && E.jetonUtilisable(S, p, "regard")) h += `<button class="petit" data-a="regard" data-d="${p}">Regard vers l'avenir</button>`;
+    h += `</div>`;
+    if (ui.conv === p) h += `<div class="options">${DOM.map(d => `<button class="petit d-${d}" data-a="convDom" data-d="${p}:${d}"${j.xp[d] >= 7 ? " disabled" : ""}>${D(d)}</button>`).join("")}<button class="petit" data-a="conv" data-d="-1">Annuler</button></div>`;
+    return h + `</div>`;
+  }
+  function libelle(type, v) {
+    if (v === true) return "Oui";
+    if (v === false) return "Non";
+    if (type === "joueur") return nomJ(v);
+    if (type === "domaine") return D(v);
+    if (type === "jeton") return esc(NOM_JETON[v] ? NOM_JETON[v].nom : v);
+    if (type === "objectif") return `${esc(C.OBJ[v].nom)} <span class="doux">— ${esc(C.OBJ[v].texte)}</span>`;
+    return esc(v);
+  }
+  function action() {
+    let h = `<div class="bloc action">${ui.msg ? `<div class="toast">${esc(ui.msg)}</div>` : ""}`;
+    if (S.gagnant !== null) return h + `<div class="consigne">Partie terminée : ${nomJ(S.gagnant)} gagne !</div><button class="prim" data-a="menu">Nouvelle partie</button></div>`;
+    const a = S.attente;
+    const auxIA = E.attendus(S).filter(q => estIA(q));
+    if (auxIA.length && (a ? estIA(a.p) : S.phase === "acq" || E.attendus(S).every(q => estIA(q))))
+      return h + `<div class="consigne">${auxIA.map(nomJ).join(", ")} (IA) ${S.phase === "prog" && !a ? "programme" : "réfléchit"}…</div></div>`;
+    if (a) {
+      const carteSrc = E.PAR_ID[a.ctx.id] ? `« ${esc(E.carte(a.ctx.id).nom)} »` : "Jeton";
+      h += `<div class="consigne">${nomJ(a.p)} — ${carteSrc} : ${esc(a.demande.texte)}</div><div class="options">`;
+      for (const v of a.demande.options) h += `<button data-a="choix" data-d="${esc(JSON.stringify(v))}">${libelle(a.demande.type, v)}</button>`;
+      if (a.demande.passer) h += `<button data-a="choix" data-d="null">Passer</button>`;
+      return h + `</div></div>`;
+    }
+    if (S.phase === "prog") {
+      const p = ui.voit, j = S.joueurs[p], libres = E.disponibles(S, p);
+      h += `<div class="consigne">${nomJ(p)}, programmez une Recherche et une Censure (en secret)</div>`;
+      for (const t of ["R", "C"]) {
+        h += `<div class="rangee"><h3>${t === "R" ? "Recherche : le domaine où vous voulez progresser" : "Censure : le domaine que vous voulez priver de financement"}</h3><div class="cartes">`;
+        for (const d of DOM) {
+          const s = t + "-" + d, verrou = !libres.includes(s);
+          h += carteHTML(j.cartes[s], { bouton: true, a: "sel" + t, d, off: verrou, verrou, choisie: ui.sel[t === "R" ? "r" : "c"] === d });
+        }
+        h += `</div></div>`;
+      }
+      const ann = ["vote2", "immunite"].filter(k => E.jetonUtilisable(S, p, k));
+      if (ann.length) h += `<div class="options">${ann.map(k => `<label><input type="checkbox" data-a="jet" data-d="${k}"${ui.sel.jetons.includes(k) ? " checked" : ""}> Utiliser « ${esc(NOM_JETON[k].nom)} »</label>`).join("")}</div>`;
+      return h + `<div class="options"><button class="prim" data-a="valider"${ui.sel.r && ui.sel.c ? "" : " disabled"}>Valider ma programmation</button></div></div>`;
+    }
+    if (S.phase === "acq") {
+      const p = S.ordre[S.acq], j = S.joueurs[p];
+      const gratuit = E.jetonUtilisable(S, p, "achat2");
+      h += `<div class="consigne">${nomJ(p)} : acquisition d'une carte Progrès${S.t.normalFait ? " (acquisition normale faite)" : ""}</div>
+        <p class="doux" style="margin:0 0 6px">L'XP n'est pas dépensée : il suffit d'atteindre le coût. La carte remplace celle du même type et du même domaine.${S.t.gel ? ` <b>Gel des fonds : la carte ${D(S.t.gel)} est bloquée ce tour.</b>` : ""}</p><div class="cartes">`;
+      for (const d of DOM) {
+        const id = S.visibles[d];
+        h += id ? carteHTML(id, { bouton: true, a: "acq", d, off: S.t.normalFait || S.t.gel === d || !E.peutPayer(j, E.carte(id).cout) }) : carteHTML(null);
+      }
+      h += `</div>`;
+      if (gratuit) h += `<div class="rangee" style="margin-top:8px"><b>Progrès gratuit</b> <span class="doux">(une fois, en plus de l'acquisition normale, sans condition de coût) :</span>
+        <div class="options">${DOM.filter(d => S.visibles[d]).map(d => `<button class="petit" data-a="acqGratuit" data-d="${d}"${S.t.gel === d ? " disabled" : ""}>${esc(E.carte(S.visibles[d]).nom)}</button>`).join("")}</div></div>`;
+      return h + `<div class="options"><button data-a="passerAcq">${S.t.normalFait ? "Terminer mon acquisition" : "Ne rien acquérir"}</button></div></div>`;
+    }
+    return h + `<div class="consigne">…</div></div>`;
+  }
+
+  // ---------- statistiques (gardées dans ce navigateur) ----------
+  const lireStats = () => { try { return JSON.parse(lire(CLE_STATS) || "[]"); } catch (e) { return []; } };
+  function enregistrer() {
+    if (!S || S.gagnant === null || S.enregistre) return;
+    const r = BILAN.resume(S), L = lireStats();
+    L.push({ r, svg: BILAN.plateau(S) });
+    stocker(CLE_STATS, JSON.stringify(L.slice(-300)));
+    S.enregistre = r.id; sauver();
+  }
+  function pageStats() {
+    const tout = lireStats();
+    const L = tout.filter(x => ui.statsIA || x.r.ia < x.r.n).filter(x => !ui.statsVer || x.r.version === ui.statsVer).reverse();
+    const moy = (a, b) => (b ? (a / b).toFixed(1) : "–");
+    const V = BILAN.parVersion(tout.filter(x => ui.statsIA || x.r.ia < x.r.n).map(x => x.r));
+    let h = `<div class="entete"><span class="titre">Statistiques des parties</span><span class="infos">${tout.length} partie${tout.length > 1 ? "s" : ""} enregistrée${tout.length > 1 ? "s" : ""} dans ce navigateur</span>
+      <span class="outils"><button class="petit" data-a="statsRetour">Retour</button></span></div>`;
+    h += `<div class="bloc"><h2>Par version</h2><div class="tableau"><table><tr><th>Version</th><th>Parties</th><th>Tours (moy.)</th><th>Cartes achetées / joueur</th><th>Victoires d'une IA</th><th>Victoires par objectif</th></tr>
+      ${V.map(v => `<tr class="${ui.statsVer === v.version ? "sel" : ""}" data-a="statsVer" data-d="${esc(v.version)}"><td><b>v${esc(v.version)}</b></td><td>${v.n}</td><td>${moy(v.tours, v.n)}</td><td>${moy(v.achats, v.joueurs)}</td><td>${Math.round(100 * v.ia / v.n)} %</td>
+        <td>${Object.entries(v.victoires).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${esc(k)} ×${n}`).join(", ")}</td></tr>`).join("") || `<tr><td colspan="6" class="doux">Aucune partie terminée pour l'instant.</td></tr>`}</table></div>
+      <div class="options"><button class="petit" data-a="statsIA">Parties 100 % IA : ${ui.statsIA ? "affichées" : "masquées"}</button>
+      ${ui.statsVer ? `<button class="petit" data-a="statsVer" data-d="">Toutes les versions</button>` : ""}
+      <button class="petit" data-a="statsCsv"${tout.length ? "" : " disabled"}>Exporter en CSV</button><button class="petit" data-a="statsEffacer"${tout.length ? "" : " disabled"}>Effacer les statistiques</button></div></div>`;
+    h += `<div class="bloc"><h2>${ui.statsVer ? "Parties de la v" + esc(ui.statsVer) : "Dernières parties"}</h2>`;
+    for (const { r, svg } of L.slice(0, 60)) {
+      const ouvert = ui.statsOuvert === r.id;
+      h += `<div class="partie"><div class="ligne"><span class="doux">${new Date(r.date).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}</span>
+        <span>v${esc(r.version)} · ${r.n} joueurs${r.ia ? ` (dont ${r.ia} IA)` : ""} · ${r.tours} tours</span>
+        <span><b>${esc(r.gagnantNom)}</b>${r.gagnantIA ? " (IA)" : ""} gagne${r.victoire ? ` — ${esc(r.victoire)}` : ""}</span>
+        <button class="petit" data-a="statsDetail" data-d="${esc(r.id)}">${ouvert ? "Masquer" : "Détails"}</button></div>`;
+      if (ouvert) {
+        h += `<div class="detail"><img class="plan" alt="Plateau en fin de partie" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}">
+          <div class="frise"><span class="doux">Censures :</span>${r.censures.map((d, i) => `<span class="d-${d}"><b>T${i + 1}</b> ${C.NOM_DOMAINE[d]}</span>`).join("")}</div>
+          <div class="tableau"><table><tr><th>Joueur</th><th>Bio / Phys / Éco / Chim</th><th>Veilles</th><th>Cartes achetées</th><th>Objectifs</th><th>Jetons</th><th>Main finale</th></tr>
+          ${r.joueurs.map((j, q) => `<tr><td><span class="pion" style="--pj:${COUL_J[q]}">${q + 1}</span> ${esc(j.nom)}${j.ia ? " (IA)" : ""}</td><td>${DOM.map(d => j.xp[d]).join(" / ")}</td><td>${j.veille}</td><td>${j.achats}</td>
+            <td>${j.objectifs.map(esc).join(", ") || "–"}</td><td>${j.jetons.map(esc).join(", ") || "–"}</td><td class="main">${j.main.map(esc).join(", ")}</td></tr>`).join("")}</table></div></div>`;
+      }
+      h += `</div>`;
+    }
+    if (!L.length) h += `<p class="doux">Aucune partie à afficher.</p>`;
+    return h + `</div>`;
+  }
+
+  // ---------- écrans ----------
+  function accueil() {
+    const sauve = charger();
+    let noms = "";
+    for (let i = 0; i < ui.nbj; i++) noms += `<div class="ligne-nom"><input data-nom="${i}" placeholder="${ui.ia[i] ? "IA " + (i + 1) : "Joueur " + (i + 1)}" value="${esc(ui.noms[i])}">
+      <button data-a="basculeIA" data-d="${i}"${ui.ia[i] ? ' class="prim"' : ""}>${ui.ia[i] ? "IA" : "Humain"}</button></div>`;
+    return `<div class="ecran"><div class="boite"><h1>Eurekaïe !</h1><p class="doux">La course au savoir — prototype numérique, sur un seul appareil.</p>
+      <div class="options" style="justify-content:center">${[2, 3, 4, 5].map(n => `<button data-a="nbj" data-d="${n}"${n === ui.nbj ? ' class="prim"' : ""}>${n} joueurs</button>`).join("")}</div>
+      <div class="noms">${noms}</div>
+      <div class="options" style="justify-content:center"><span class="doux">Vitesse de l'IA :</span>${[[1200, "lente"], [600, "normale"], [150, "rapide"]].map(([v, t]) => `<button class="petit${ui.vitesse === v ? " prim" : ""}" data-a="vitesse" data-d="${v}">${t}</button>`).join("")}</div>
+      <div class="options" style="justify-content:center"><button class="prim" data-a="nouvelle">Nouvelle partie</button>
+      ${sauve && sauve.gagnant === null ? `<button data-a="reprendre">Reprendre la partie (tour ${sauve.tour})</button>` : ""}</div>
+      <div class="options" style="justify-content:center"><button class="petit" data-a="stats">Statistiques (${lireStats().length})</button></div></div></div>`;
+  }
+  function passage(p) {
+    const pourquoi = S.attente ? "fait un choix secret" : "programme ses cartes";
+    return `<div class="ecran"><div class="boite"><h1>${pion(p)} ${nomJ(p)}</h1><p>Passez l'appareil à <b>${nomJ(p)}</b>, qui ${pourquoi}.</p>
+      <p class="doux">Les autres joueurs ne regardent pas l'écran.</p><button class="prim" data-a="voir" data-d="${p}">Je suis ${nomJ(p)}, afficher</button></div></div>`;
+  }
+  function jeu() {
+    const ph = { prog: "programmation secrète", resol: "résolution", acq: "acquisition", fin: "partie terminée" }[S.phase];
+    let h = `<div class="entete"><span class="titre">Eurekaïe !</span><span class="infos">Tour ${S.tour} · ${ph}</span>
+      <span class="outils"><button class="petit" data-a="theme">Thème</button><button class="petit" data-a="menu">Menu</button></span></div>
+      <div class="grille"><div>${action()}
+      <div class="bloc"><h2>Plateau</h2>${hierarchie()}${pistes()}<p class="doux" style="margin:6px 0 0">Cases encadrées : jetons de palier (le premier joueur qui atteint la case le prend). Case 7 : on pioche un objectif.</p></div>
+      <div class="bloc"><h2>Cartes Progrès disponibles</h2>${marche()}</div></div>
+      <div>${S.joueurs.map((_, p) => joueurHTML(p)).join("")}
+      <div class="bloc"><h2>Journal</h2><div class="journal">${S.log.slice(-60).reverse().map(l => `<div><span class="doux">T${l.tour}</span> ${esc(l.txt)}</div>`).join("")}</div></div></div></div>`;
+    if (S.gagnant !== null) h += `<div class="voile"><div class="ecran" style="min-height:0"><div class="boite"><h1>${pion(S.gagnant)} ${nomJ(S.gagnant)} gagne !</h1>
+      <p>${esc((S.log.slice().reverse().find(l => /gagne/.test(l.txt)) || { txt: "" }).txt)}</p><div class="options" style="justify-content:center"><button data-a="fermer">Voir le plateau</button><button data-a="stats" data-d="bilan">Bilan de la partie</button><button class="prim" data-a="menu">Nouvelle partie</button></div></div></div></div>`;
+    return h;
+  }
+  function render() {
+    const app = document.getElementById("app");
+    enregistrer();
+    if (ui.page === "stats") { app.innerHTML = `<div class="app">${pageStats()}</div>`; return; }
+    if (!S) { app.innerHTML = `<div class="app">${accueil()}</div>`; return; }
+    const sp = secretPour();
+    if (sp !== null && ui.voit !== sp) { app.innerHTML = `<div class="app">${passage(sp)}</div>`; return; }
+    app.innerHTML = `<div class="app">${jeu()}</div>`;
+    if (ui.ferme) { const v = app.querySelector(".voile"); if (v) v.remove(); }
+    tourIA();
+  }
+
+  // ---------- actions ----------
+  function jouer(p, type, args) {
+    const r = E.apply(S, p, type, args);
+    ui.msg = r || "";
+    return !r;
+  }
+  function handle(a, d) {
+    ui.msg = "";
+    if (a === "nbj") ui.nbj = +d;
+    else if (a === "basculeIA") ui.ia[+d] = !ui.ia[+d];
+    else if (a === "vitesse") ui.vitesse = +d;
+    else if (a === "nouvelle") {
+      const noms = []; for (let i = 0; i < ui.nbj; i++) noms.push((ui.noms[i] || "").trim() || (ui.ia[i] ? "IA " : "Joueur ") + (i + 1));
+      S = E.newGame({ noms }); S.joueurs.forEach((j, i) => { j.ia = ui.ia[i]; }); ui.voit = null; ui.ferme = false;
+    }
+    else if (a === "reprendre") { S = charger(); ui.voit = null; }
+    else if (a === "menu") { if (!S || S.gagnant !== null || confirm("Quitter la partie en cours ? Elle reste sauvegardée et pourra être reprise.")) { S = null; clearTimeout(ui.minuteur); ui.minuteur = null; } }
+    else if (a === "theme") {
+      const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = t; stocker(CLE_THEME, t);
+    }
+    else if (a === "fermer") ui.ferme = true;
+    else if (a === "stats") { ui.page = "stats"; ui.statsOuvert = d === "bilan" && S ? S.enregistre : null; }
+    else if (a === "statsRetour") ui.page = null;
+    else if (a === "statsVer") ui.statsVer = d || null;
+    else if (a === "statsIA") ui.statsIA = !ui.statsIA;
+    else if (a === "statsDetail") ui.statsOuvert = ui.statsOuvert === d ? null : d;
+    else if (a === "statsEffacer") { if (confirm("Effacer toutes les statistiques enregistrées dans ce navigateur ?")) stocker(CLE_STATS, "[]"); }
+    else if (a === "statsCsv") {
+      const url = URL.createObjectURL(new Blob(["\ufeff" + BILAN.csv(lireStats().map(x => x.r))], { type: "text/csv;charset=utf-8" }));
+      const l = document.createElement("a"); l.href = url; l.download = "eurekaie-statistiques.csv"; l.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    else if (a === "voir") ui.voit = +d;
+    else if (a === "selR") ui.sel.r = d;
+    else if (a === "selC") ui.sel.c = d;
+    else if (a === "jet") ui.sel.jetons = ui.sel.jetons.includes(d) ? ui.sel.jetons.filter(k => k !== d) : ui.sel.jetons.concat([d]);
+    else if (a === "valider") {
+      if (jouer(ui.voit, "programmer", { r: ui.sel.r, c: ui.sel.c, jetons: ui.sel.jetons })) { ui.sel = { r: null, c: null, jetons: [] }; ui.voit = null; }
+    }
+    else if (a === "choix") {
+      const prive = S.attente && S.attente.demande.prive;
+      if (jouer(S.attente.p, "choisir", { v: JSON.parse(d) }) && prive) ui.voit = null;
+    }
+    else if (a === "acq") jouer(S.ordre[S.acq], "acquerir", { dom: d });
+    else if (a === "acqGratuit") jouer(S.ordre[S.acq], "acquerir", { dom: d, gratuit: true });
+    else if (a === "passerAcq") jouer(S.ordre[S.acq], "passer");
+    else if (a === "conv") ui.conv = +d >= 0 ? +d : null;
+    else if (a === "convDom") { const [p, dom] = d.split(":"); if (jouer(+p, "convertir", { dom })) ui.conv = null; }
+    else if (a === "regard") { if (jouer(+d, "jeton", { k: "regard" })) ui.voit = +d; }
+    if (S) sauver();
+    render();
+  }
+  function start() {
+    document.addEventListener("click", e => {
+      const t = e.target.closest("[data-a]");
+      if (!t || t.disabled) return;
+      handle(t.dataset.a, t.dataset.d);
+    });
+    document.addEventListener("input", e => { if (e.target.dataset.nom !== undefined) ui.noms[+e.target.dataset.nom] = e.target.value; });
+    render();
+  }
+  return { start, handle, etat: () => S };
+})();
+if (typeof document !== "undefined") UI.start();
+</script></body></html>

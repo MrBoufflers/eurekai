@@ -1,0 +1,11 @@
+{
+  "name": "eurekaie",
+  "version": "0.6.1",
+  "private": true,
+  "description": "Eurekaïe ! — la course au savoir (prototype numérique du jeu de plateau)",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "test": "node tests/rules.test.js && node tests/ia.test.js",
+    "e2e": "node tests/e2e-partie.js 1280"
+  }
+}
