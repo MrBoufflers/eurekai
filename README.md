@@ -8,7 +8,7 @@ chaque piste à 7 fait piocher un **objectif** public, et on gagne dès qu'un ob
 
 ## Jouer
 
-Ouvrir `dist/eurekaie.html` dans un navigateur (aucune installation). Sur l'accueil : nombre de joueurs, et pour chaque place « Humain » ou « IA ».
+En ligne : https://jeurekai.netlify.app (mis à jour à chaque envoi sur `main`). Ou ouvrir `dist/eurekaie.html` dans un navigateur (aucune installation). Sur l'accueil : nombre de joueurs, et pour chaque place « Humain » ou « IA ».
 La partie est sauvegardée dans le navigateur ; les statistiques des parties terminées aussi (bouton « Statistiques »).
 
 ## Règles

@@ -1,5 +1,6 @@
-# Assemble dist/eurekaie.html : une seule page autonome (styles et scripts intégrés)
-import pathlib
+# Assemble dist/eurekaie.html : une seule page autonome (styles et scripts intégrés).
+# Avec --site : écrit aussi site/index.html (dossier publié par Netlify, voir netlify.toml ; ignoré par git).
+import pathlib, sys
 R = pathlib.Path(__file__).resolve().parent.parent
 css = (R / "src/style.css").read_text(encoding="utf-8")
 js = "\n".join((R / f"src/{n}.js").read_text(encoding="utf-8") for n in ["cartes", "engine", "ia", "bilan", "ui"])
@@ -14,3 +15,7 @@ html = f"""<!doctype html>
 (R / "dist").mkdir(exist_ok=True)
 (R / "dist/eurekaie.html").write_text(html, encoding="utf-8")
 print("dist/eurekaie.html", len(html), "octets")
+if "--site" in sys.argv:
+    (R / "site").mkdir(exist_ok=True)
+    (R / "site/index.html").write_text(html, encoding="utf-8")
+    print("site/index.html", len(html), "octets")

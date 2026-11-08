@@ -21,7 +21,9 @@ src/ia.js           IA basique (automa), sans DOM : IA.decider(S, p) / IA.jouer(
 src/bilan.js        Bilan de fin de partie (BILAN.resume, BILAN.plateau en SVG, agrégats par version, CSV), sans DOM
 src/ui.js           Interface (une partie sur un seul appareil) : rendu innerHTML, clics délégués sur [data-a] → handle(a, d)
 src/style.css       Styles (thèmes clair / sombre, mise en page ordinateur et téléphone)
-tools/build.py      Assemble dist/eurekaie.html (page autonome) : `npm run build` ; ne pas éditer dist/ à la main
+tools/build.py      Assemble dist/eurekaie.html (page autonome) : `npm run build` ; ne pas éditer dist/ à la main.
+                    `--site` écrit aussi site/index.html (publié par Netlify)
+netlify.toml        Netlify (projet « jeurekai », https://jeurekai.netlify.app) : build `python3 tools/build.py --site`, publie site/
 tests/rules.test.js Tests ciblés des règles
 tests/ia.test.js    6 parties jouées par l'IA (graines fixes) : aucun coup refusé, parties terminées (pas une étude d'équilibrage)
 tests/e2e-partie.js Partie complète jouée en vrais clics dans Chromium (`npm run e2e`)

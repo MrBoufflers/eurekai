@@ -1,0 +1,4 @@
+# Netlify : la page du jeu est assemblée à chaque déploiement puis publiée comme index.html
+[build]
+  command = "python3 tools/build.py --site"
+  publish = "site"
