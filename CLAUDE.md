@@ -48,3 +48,9 @@ docs/questions.md   Points de règles à valider par Oni
   Avec un seul humain, pas d'écran de passage.
 - Statistiques : à la fin d'une partie, `enregistrer()` ajoute `{ r: BILAN.resume(S), svg }` à `localStorage["eurekaie-stats"]` (300 dernières) ;
   page « Statistiques » (accueil, ou « Bilan de la partie » sur l'écran de victoire). Pas de serveur pour l'instant (≠ SWARM).
+- Clarté (v0.7) : récapitulatif du tour `recap()` (votes, cartes jouées, gains : photos `S.t.depart` / `S.t.arrivee` du moteur) ;
+  journal `journal()` groupé par tour et par partie du tour (`log.sec`, posé par le moteur), filtre par joueur ;
+  badge « quand l'effet s'applique » `quand(id)` ; aperçu de programmation `apercu(p)` ; progression des objectifs `progression(p, o)` ;
+  alerte « proche de 7 » ; carte remplacée à l'acquisition ; bulles de l'IA `bulle()`, pause / pas à pas ;
+  aide intégrée `aide()` ; mode découverte `TIPS` / `conseil()` (localStorage `eurekaie-decouverte`, `eurekaie-conseils-vus`) ;
+  animations `animer()` (comparaison avec l'état du rendu précédent ; `eurekaie-animations`, désactivées si le système le demande).

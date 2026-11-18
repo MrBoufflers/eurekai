@@ -4,7 +4,7 @@
 const EK = (() => {
   const C = typeof module !== "undefined" ? require("./cartes.js") : CARTES;
   const { DOMAINES, PAR_ID, OBJ, JETONS, MAX_PISTE, NOM_DOMAINE } = C;
-  const VERSION = "0.6.1";
+  const VERSION = "0.7.0";
 
   let RNG = Math.random;
   const setRng = f => { RNG = f; };
@@ -54,7 +54,14 @@ const EK = (() => {
   }
 
   // ---------- outils ----------
-  const log = (S, txt) => { S.log.push({ tour: S.tour, txt }); };
+  // journal : chaque ligne garde son tour et la partie du tour (« sec ») où elle s'est produite (affichage)
+  let SEC = "";
+  const SEC_PHASE = { prog: "Programmation", resol: "Résolution", acq: "Acquisition", fin: "Fin de partie" };
+  const log = (S, txt) => { S.log.push({ tour: S.tour, txt, sec: SEC || SEC_PHASE[S.phase] || "" }); };
+  const avecSec = (sec, f) => { const avant = SEC; SEC = sec; try { return f(); } finally { SEC = avant; } };
+  const SEC_QUAND = { censure: "Censure", censure_r: "Censure", veto: "Vote", recherche: "Recherche", base: "Recherche", jeton: "" };
+  // état des joueurs (XP, Veilles) pour le récapitulatif du tour
+  const photo = S => S.joueurs.map(j => ({ xp: { ...j.xp }, veille: j.veille }));
   const nom = (S, p) => S.joueurs[p].nom;
   const autres = (S, p) => S.joueurs.map((_, i) => i).filter(i => i !== p);
   const rechercheurs = (S, dom) => S.joueurs.map((j, i) => (j.prog && j.prog.r === dom ? i : -1)).filter(i => i >= 0);
@@ -423,8 +430,9 @@ const EK = (() => {
   // ---------- déroulement du tour ----------
   // 1. révélation : jetons annoncés, ordre de jeu, Vetos ; 2. décompte des votes (compterVotes) ; 3–4. résolution ; 5. acquisition
   function revelation(S) {
+    SEC = "Révélation";
     const tous = S.joueurs.map((_, i) => i);
-    S.t = { bloques: [], annules: [], vote2: [], immunes: [], normalFait: false, gel: null,
+    S.t = { bloques: [], annules: [], vote2: [], immunes: [], normalFait: false, gel: null, depart: photo(S),
       jouees: tous.map(p => ({ r: carteJouee(S, p, "R"), c: carteJouee(S, p, "C") })) };
     for (const p of tous) for (const k of S.joueurs[p].prog.jetons || []) {
       useJeton(S, p, k);
@@ -437,6 +445,7 @@ const EK = (() => {
     const E = S.ordre.filter(p => jetonUtilisable(S, p, "veto")).map(p => ({ k: "fx", p, id: "J-veto", quand: "veto" }));
     E.push({ k: "vote" });
     S.etapes = E; S.phase = "resol";
+    SEC = "";
     avancer(S);
   }
 
@@ -488,12 +497,16 @@ const EK = (() => {
     verifier(S);
     while (!S.attente && S.gagnant === null && S.etapes.length) {
       const e = S.etapes.shift();
+      SEC = e.k === "vote" ? "Vote" : e.k === "acq" ? "Acquisition" : e.k === "xp" ? "Recherche"
+        : e.k === "veille" ? "Censure"
+        : e.k === "fx" || e.k === "avenir" ? (SEC_QUAND[e.quand] !== undefined ? SEC_QUAND[e.quand] : (carte(e.id) && carte(e.id).type === "C" ? "Censure" : "Recherche")) : "";
       if (e.k === "veille") avecCause(e.raison, () => gainVeille(S, e.p, e.n));
       else if (e.k === "xp") avecCause("Recherche", () => gainXP(S, e.p, S.joueurs[e.p].prog.r, 1));
       else if (e.k === "vote") compterVotes(S);
       else if (e.k === "avenir") log(S, `« ${carte(e.id).nom} » : effet pas encore programmé dans le prototype`);
       else if (e.k === "fx") { const ctx = { p: e.p, id: e.id, quand: e.quand, choix: [] }; poser(S, ctx, avecCause(`${nomSource(e.id)} de ${nom(S, e.p)}`, () => FX[e.id].run(S, ctx))); }
       else if (e.k === "acq") debutAcquisition(S);
+      SEC = "";
       verifier(S);
     }
   }
@@ -516,7 +529,8 @@ const EK = (() => {
     for (const j of S.joueurs) { j.verrou = ["R-" + j.prog.r, "C-" + j.prog.c]; j.prog = null; }
     enHaut(S, S.t.censure);
     (S.histo = S.histo || []).push({ tour: S.tour, dom: S.t.censure, votes: S.t.votes }); // historique des censures (affichage)
-    S.dernier = S.t; S.t = null; S.tour++; S.phase = "prog"; S.ordre = [];
+    S.t.arrivee = photo(S);
+    S.dernier = S.t; S.dernier.tour = S.tour; S.t = null; S.tour++; S.phase = "prog"; S.ordre = [];
   }
 
   // ---------- point d'entrée unique des actions ----------
@@ -547,7 +561,7 @@ const EK = (() => {
       else if (!a.demande.options.includes(v)) return "Choix impossible";
       a.ctx.choix.push(v);
       S.attente = null;
-      poser(S, a.ctx, avecCause(`${nomSource(a.ctx.id)} de ${nom(S, a.ctx.p)}`, () => FX[a.ctx.id].run(S, a.ctx)));
+      poser(S, a.ctx, avecSec(SEC_QUAND[a.ctx.quand] || "", () => avecCause(`${nomSource(a.ctx.id)} de ${nom(S, a.ctx.p)}`, () => FX[a.ctx.id].run(S, a.ctx))));
       avancer(S);
       return "";
     },

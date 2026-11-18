@@ -35,7 +35,7 @@ h2 { font-size: 17px; } h3 { font-size: 15px; }
 .entete { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
 .entete .titre { font-weight: 800; font-size: 20px; letter-spacing: .5px; }
 .entete .infos { flex: 1; color: var(--doux); }
-.entete .outils { display: flex; gap: 6px; }
+.entete .outils { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .grille { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; align-items: start; }
 @media (max-width: 980px) { .grille { grid-template-columns: minmax(0, 1fr); } }
@@ -141,3 +141,70 @@ button.carte:hover:not(:disabled) { outline: 2px solid var(--accent); }
 .partie .ligne { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .partie .detail { margin-top: 8px; }
 .plan { width: 100%; max-width: 620px; height: auto; display: block; margin-bottom: 8px; border-radius: 6px; }
+
+/* ===== clarté (v0.7) ===== */
+/* moment de l'effet d'une carte */
+.quand { display: inline-block; margin: 0 8px 4px; font-size: 10.5px; font-weight: 700; border-radius: 10px; padding: 1px 7px; background: var(--surface2); color: var(--texte); border: 1px solid var(--bord); }
+.quand.q-censure { background: color-mix(in srgb, #c0392b 18%, var(--surface)); border-color: #c0392b; }
+.quand.q-recherche { background: color-mix(in srgb, #2f855a 18%, var(--surface)); border-color: #2f855a; }
+.quand.q-censure_r { background: color-mix(in srgb, #b7791f 22%, var(--surface)); border-color: #b7791f; }
+.quand.q-vote { background: color-mix(in srgb, #3b6fd1 18%, var(--surface)); border-color: #3b6fd1; }
+.quand.q-avenir { border-style: dashed; color: var(--doux); }
+li .quand { margin: 0 4px 0 0; }
+/* hiérarchie */
+.hier .fleche { font-size: 12px; color: var(--doux); }
+.aide-ligne { margin: -4px 0 10px; font-size: 12px; color: var(--doux); }
+/* alerte « proche de 7 » */
+.alerte { margin: 4px 0; font-size: 12px; font-weight: 600; border-left: 4px solid var(--d); background: color-mix(in srgb, var(--d) 14%, var(--surface)); border-radius: 6px; padding: 2px 8px; }
+.pion { position: relative; }
+.pion.proche { box-shadow: 0 0 0 2px var(--fond), 0 0 0 4px var(--accent); }
+/* progression des objectifs */
+.barre { height: 6px; background: var(--bord); border-radius: 3px; margin: 4px 0 2px; overflow: hidden; }
+.barre span { display: block; height: 100%; background: var(--accent); }
+/* aperçu de programmation */
+.apercu { background: var(--surface2); border-radius: 10px; padding: 8px 12px; margin: 4px 0 8px; font-size: 13px; }
+.apercu ul { margin: 4px 0 0; padding-left: 18px; }
+.apercu li { margin: 2px 0; }
+.risque { color: var(--danger); font-weight: 600; }
+/* récapitulatif du tour */
+.recap .votes { display: grid; gap: 4px; margin-bottom: 10px; }
+.recap .vote { display: grid; grid-template-columns: 80px minmax(0, 1fr) 150px; gap: 8px; align-items: center; font-size: 13px; }
+.recap .vote .b { height: 12px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
+.recap .vote .b span { display: block; height: 100%; background: var(--d); }
+.recap .vote.cens .lib { font-weight: 800; }
+.recap .vote.cens .b { outline: 2px solid var(--texte); }
+.ok { color: var(--ok); } .ko { color: var(--danger); }
+.gain { display: inline-block; font-size: 12px; font-weight: 700; border-left: 4px solid var(--d, var(--accent)); padding: 0 5px; margin: 1px 0; background: var(--surface2); border-radius: 4px; }
+/* journal */
+.filtre { margin-bottom: 6px; }
+.journal .jtour { font-weight: 800; margin: 8px 0 2px; border-bottom: 2px solid var(--bord); }
+.journal .jsec { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--accent); margin: 6px 0 2px; }
+.journal .jl { padding: 2px 0; border-bottom: 1px solid var(--bord); }
+.journal .ic { display: inline-block; width: 18px; color: var(--doux); text-align: center; }
+.journal button { margin-top: 6px; }
+/* mode découverte */
+.conseil { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; }
+/* aide */
+.voile-aide { z-index: 20; }
+.boite-aide { background: var(--surface); border: 1px solid var(--bord); border-radius: 16px; padding: 18px; max-width: 720px; width: 100%; max-height: 86vh; overflow-y: auto; box-shadow: var(--ombre); }
+.contenu-aide { font-size: 14px; margin-top: 8px; }
+.contenu-aide li { margin: 4px 0; }
+/* bulles de l'IA */
+.bulles { position: fixed; right: 16px; bottom: 16px; display: grid; gap: 6px; z-index: 15; max-width: min(360px, calc(100vw - 32px)); pointer-events: none; }
+.bulle { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 6px 10px; box-shadow: var(--ombre); font-size: 13px; }
+.bulle.neuve { animation: arrive .25s ease-out; }
+@media (max-width: 560px) { .bulle:nth-last-child(n+3) { display: none; } .bulle { font-size: 12px; padding: 4px 8px; } }
+.boite-aide .ligne { display: flex; align-items: center; gap: 8px; }
+/* animations */
+.flotte { position: absolute; left: 50%; top: -4px; transform: translate(-50%, 0); font-size: 12px; font-weight: 800; pointer-events: none; animation: monte 1.3s ease-out forwards; white-space: nowrap; }
+.flotte.plus { color: var(--ok); } .flotte.moins { color: var(--danger); }
+.veilles { position: relative; }
+.bouge { animation: saut .5s ease-out; }
+.eclat { animation: eclat 1s ease-out; border-radius: 6px; }
+.eclat-bloc { animation: eclat 1.2s ease-out; }
+@keyframes monte { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -22px); } }
+@keyframes saut { 0% { transform: scale(1.6); } 100% { transform: scale(1); } }
+@keyframes eclat { 0% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .bulle.neuve { animation: none; } }
+@media (max-width: 560px) { .recap .vote { grid-template-columns: 64px minmax(0, 1fr) 110px; } }
