@@ -121,9 +121,13 @@ const UI = (() => {
     let h = `<div class="bloc joueur${actif ? " actif" : ""}" style="--pj:${COUL_J[p]}">
       <div class="ligne">${pion(p)}<span class="nomj">${nomJ(p)}</span>${j.ia ? '<span class="pastille-ia">IA</span>' : ""}<span class="doux">${gemme} · ${j.veille} Veille${j.veille > 1 ? "s" : ""}</span></div>
       <div class="doux" style="font-size:13px">${etatJoueur(p)}</div><div class="mini">`;
-    for (const t of ["R", "C"]) for (const d of DOM) {
-      const s = t + "-" + d, c = E.carte(j.cartes[s]);
-      h += `<span class="${t} d-${d}${j.verrou.includes(s) ? " lock" : ""}" title="${esc(c.effet || "Carte de base")}">${esc(c.depart ? (t === "R" ? "R " : "C ") + D(d) : c.nom)}</span>`;
+    // une ligne de 4 Recherches, une ligne de 4 Censures (dans l'ordre des domaines)
+    for (const t of ["R", "C"]) {
+      h += `<b class="lib">${t === "R" ? "Rech." : "Cens."}</b>`;
+      for (const d of DOM) {
+        const s = t + "-" + d, c = E.carte(j.cartes[s]), lock = j.verrou.includes(s);
+        h += `<span class="${t} d-${d}${lock ? " lock" : ""}" title="${esc(c.nom)} — ${esc(c.effet || "Carte de base")}${lock ? " (verrouillée)" : ""}">${esc(c.depart ? D(d) : c.nom)}</span>`;
+      }
     }
     h += `</div>`;
     for (const o of j.objectifs) h += `<div class="obj"><b>${esc(C.OBJ[o.id].nom)}</b> — ${esc(C.OBJ[o.id].texte)}${o.n ? ` <span class="doux">(${o.n})</span>` : ""}</div>`;

@@ -86,8 +86,9 @@ button.carte:hover:not(:disabled) { outline: 2px solid var(--accent); }
 .joueur .ligne { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .joueur .nomj { font-weight: 700; font-size: 16px; }
 .joueur.actif { box-shadow: 0 0 0 2px var(--accent); }
-.mini { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
-.mini span { font-size: 11px; border: 1px solid var(--d); border-radius: 6px; padding: 1px 6px; }
+.mini { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 4px; margin: 6px 0; align-items: center; }
+.mini .lib { font-size: 11px; color: var(--doux); }
+.mini span { font-size: 11px; border: 1px solid var(--d); border-left-width: 4px; border-radius: 6px; padding: 1px 5px; line-height: 1.25; overflow-wrap: anywhere; align-self: stretch; }
 .mini span.C { border-style: dashed; }
 .mini span.lock { opacity: .5; }
 .obj { background: var(--surface2); border-radius: 8px; padding: 6px 8px; margin: 4px 0; font-size: 13px; }
